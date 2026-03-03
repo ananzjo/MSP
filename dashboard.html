@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | MSP Dashboard</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="global-config.js"></script>
+    
+    <style>
+        :root { 
+            --msp-green: #2fb45a; 
+            --msp-bronze: #b08d57;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background: #0f1215; color: white; margin: 0;
+            font-family: 'Segoe UI', sans-serif; display: flex;
+        }
+
+        /* Sidebar البسيط */
+        .sidebar { width: 250px; background: #161a1e; height: 100vh; padding: 20px; box-sizing: border-box; }
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; height: 100vh; box-sizing: border-box; }
+
+        /* بطاقات الأرقام */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card {
+            background: var(--glass); border: 1px solid var(--border);
+            padding: 20px; border-radius: 20px; backdrop-filter: blur(10px);
+            display: flex; align-items: center; gap: 15px;
+        }
+        .stat-icon { font-size: 2.5rem; background: rgba(47, 180, 90, 0.1); padding: 10px; border-radius: 15px; }
+        .stat-info h2 { margin: 0; font-size: 1.8rem; color: var(--msp-green); }
+        .stat-info p { margin: 0; opacity: 0.6; font-size: 0.9rem; }
+
+        /* شبكة الرسوم البيانية */
+        .charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; }
+        .chart-container {
+            background: var(--glass); border: 1px solid var(--border);
+            padding: 25px; border-radius: 25px; min-height: 350px;
+        }
+        .chart-container h3 { margin-top: 0; margin-bottom: 20px; font-weight: 500; color: var(--msp-bronze); }
+        
+        .full-width { grid-column: span 2; }
+
+        @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2 style="color: var(--msp-green);">MSP System</h2>
+        <hr style="border: 0.1px solid var(--border); margin: 20px 0;">
+        <p style="cursor: pointer;" onclick="window.location.href='visits.html'">🏠 الزيارات</p>
+        <p style="color: var(--msp-green); font-weight: bold;">📊 الإحصائيات</p>
+        <p style="cursor: pointer; margin-top: 50px;" onclick="localStorage.clear(); location.href='login.html'">🚪 خروج</p>
+    </div>
+
+    <div class="main-content">
+        <header style="margin-bottom: 30px;">
+            <h1 style="margin: 0;">لوحة تحليل البيانات</h1>
+            <p style="opacity: 0.5;">مرحباً بك، إليك ملخص أداء مبيعات MSP اليوم</p>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📑</div>
+                <div class="stat-info"><p>إجمالي الزيارات</p><h2 id="totalVisits">0</h2></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-info"><p>فرص فورية</p><h2 id="hotLeads">0</h2></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div class="stat-info"><p>الطلب المتوقع (كغم)</p><h2 id="totalQty">0</h2></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-info"><p>متوسط التقييم</p><h2 id="avgRating">0</h2></div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h3>توزيع المبيعات جغرافيًا</h3>
+                <canvas id="geoChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>أداء المناديب (عدد الزيارات)</h3>
+                <canvas id="repChart"></canvas>
+            </div>
+            <div class="chart-container full-width">
+                <h3>تحليل نمو الطلب الشهري المتوقع</h3>
+                <canvas id="qtyChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

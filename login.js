@@ -1,62 +1,78 @@
-/* login.js - MSP System Authentication */
+/* MSP System - Login Logic with Custom Modal */
 
-// تأكد من أن supabaseClient متاح من global-config.js
-const loginForm = document.getElementById('loginForm');
-const submitBtn = document.getElementById('submitBtn');
-const togglePass = document.getElementById('togglePass');
+// 1. وظيفة المودال (بديلة الـ Alert)
+function showMspModal(title, message, type = 'success') {
+    const modal = document.getElementById('mspModal');
+    const icon = document.getElementById('modalIcon');
+    const titleEl = document.getElementById('modalTitle');
+    const textEl = document.getElementById('modalText');
 
-// 1. إظهار/إخفاء كلمة المرور
-togglePass.addEventListener('click', () => {
+    titleEl.textContent = title;
+    textEl.textContent = message;
+    
+    if (type === 'success') {
+        icon.textContent = '✅';
+        icon.style.color = '#2fb45a';
+    } else {
+        icon.textContent = '⚠️';
+        icon.style.color = '#e74c3c';
+    }
+
+    modal.style.display = 'flex';
+}
+
+function closeMspModal() {
+    document.getElementById('mspModal').style.display = 'none';
+}
+
+// 2. تبديل رؤية كلمة المرور
+document.getElementById('eyeIcon').addEventListener('click', function() {
     const passInput = document.getElementById('password');
     if (passInput.type === 'password') {
         passInput.type = 'text';
-        togglePass.textContent = '🔒';
+        this.textContent = '🔒';
     } else {
         passInput.type = 'password';
-        togglePass.textContent = '👁️';
+        this.textContent = '👁️';
     }
 });
 
-// 2. معالجة الدخول
-async function handleLogin(event) {
-    event.preventDefault();
+// 3. معالجة الدخول عبر Supabase
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
     
     const user = document.getElementById('username').value.trim();
     const pass = document.getElementById('password').value.trim();
+    const btn = document.getElementById('submitBtn');
 
-    // تغيير حالة الزر
-    submitBtn.disabled = true;
-    submitBtn.textContent = "جاري التحقق...";
+    btn.disabled = true;
+    btn.textContent = "جاري التحقق...";
 
     try {
-        // البحث عن المستخدم في جدول المستخدمين (t99_users)
-        // ملاحظة: تم إضافة t و f بناءً على القواعد الذهبية
+        // البحث في جدول t99_users بناءً على القواعد التي وضعتها
         const { data, error } = await supabaseClient
-            .from('t99_users') 
+            .from('t99_users')
             .select('*')
             .eq('f_username', user)
             .eq('f_password', pass)
             .single();
 
         if (error || !data) {
-            throw new Error("خطأ في اسم المستخدم أو كلمة المرور");
+            throw new Error("بيانات الدخول غير صحيحة، حاول مجدداً");
         }
 
-        // نجاح الدخول - حفظ الجلسة محلياً (اختياري)
-        localStorage.setItem('msp_user', JSON.stringify(data));
+        // حفظ الجلسة والانتقال
+        localStorage.setItem('msp_session', JSON.stringify(data));
         
-        showNotification(`مرحباً بك ${data.f_full_name || user}`, 'success');
+        showMspModal("مرحباً بك", `تم تسجيل دخول ${data.f_full_name} بنجاح`, "success");
 
-        // الانتقال لصفحة الزيارات بعد ثانية
         setTimeout(() => {
             window.location.href = 'visits.html';
-        }, 1500);
+        }, 2000);
 
     } catch (err) {
-        showNotification(err.message, 'error');
-        submitBtn.disabled = false;
-        submitBtn.textContent = "دخول للنظام 🚀";
+        showMspModal("خطأ", err.message, "error");
+        btn.disabled = false;
+        btn.textContent = "دخول للنظام 🚀";
     }
-}
-
-loginForm.addEventListener('submit', handleLogin);
+});

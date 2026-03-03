@@ -3,168 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSP - توثيق الزيارات الميدانية</title>
-    <link rel="stylesheet" href="visits.css">
-    </head>
+    <title>الدخول | MSP - نظام إدارة المبيعات</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="global-config.js"></script>
+    
+    <style>
+        :root { 
+            --msp-green: #2fb45a; 
+            --msp-bronze: #b08d57;
+            --msp-dark: #121212;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background: radial-gradient(circle at center, #1e272e 0%, #050505 100%);
+            height: 100vh; display: flex; align-items: center; justify-content: center; 
+            margin: 0; font-family: 'Segoe UI', sans-serif; overflow: hidden;
+        }
+
+        /* بطاقة تسجيل الدخول الزجاجية */
+        .login-card {
+            background: var(--glass-bg); backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); padding: 40px; border-radius: 30px;
+            width: 90%; max-width: 400px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            text-align: center; color: white; animation: slideUp 0.6s ease-out;
+        }
+
+        .logo-box img { width: 100px; margin-bottom: 15px; border-radius: 12px; }
+        
+        .form-group { margin-bottom: 20px; position: relative; text-align: right; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 0.85rem; color: var(--msp-green); }
+
+        .login-input {
+            width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.05); color: white; outline: none; transition: 0.3s; box-sizing: border-box;
+        }
+
+        .login-input:focus { border-color: var(--msp-green); background: rgba(255,255,255,0.1); }
+
+        .pass-toggle { position: absolute; left: 15px; top: 38px; cursor: pointer; color: #888; }
+
+        .login-btn {
+            width: 100%; padding: 15px; border-radius: 12px; border: none;
+            background: linear-gradient(45deg, var(--msp-green), #27ae60);
+            color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer;
+            transition: 0.3s; margin-top: 10px;
+        }
+
+        .login-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(47, 180, 90, 0.3); }
+
+        /* تنسيق المودال (بديل Alert) */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px);
+            z-index: 1000; align-items: center; justify-content: center;
+        }
+
+        .modal-content {
+            background: #1c1c1c; border: 1px solid var(--glass-border);
+            padding: 30px; border-radius: 20px; text-align: center; color: white;
+            max-width: 320px; width: 80%; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        .modal-icon { font-size: 3.5rem; margin-bottom: 15px; }
+        .modal-title { margin: 0 0 10px 0; font-size: 1.3rem; }
+        .modal-text { opacity: 0.7; margin-bottom: 20px; font-size: 0.95rem; }
+        .modal-close-btn {
+            background: var(--msp-green); border: none; color: white; padding: 10px 0;
+            width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer;
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
 <body>
 
-    <nav id="sidebar" class="sidebar">
-        <div class="sidebar-header">
-            <img src="MSP_Logo.jpeg" alt="MSP Logo" class="logo-img">
+    <div class="login-card">
+        <div class="logo-box">
+            <img src="MSP_Logo.jpeg" alt="MSP">
         </div>
-        <ul class="nav-links">
-            <li><a href="#" class="active">تسجيل زيارة</a></li>
-            </ul>
-    </nav>
+        <h2 style="margin: 0; color: var(--msp-bronze);">نظام MSP المطور</h2>
+        <p style="opacity: 0.6; font-size: 0.9rem; margin-bottom: 30px;">نظام إدارة أسطول التغليف الذكي</p>
 
-    <main class="main-content">
-        <header class="top-header">
-            <button id="sidebarToggle" class="toggle-btn">☰</button>
-            <h2 class="page-title">توثيق الزيارات الميدانية</h2>
-            
-            <div class="connection-status">
-                <span id="digital-clock" class="taxi-clock">00:00:00</span>
-                <div class="pulse-indicator" title="Live Connection"></div>
-            </div>
-        </header>
-
-        <section class="container">
-            <form id="visitForm" class="modern-form">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>المحافظة</label>
-                        <select id="f_governorate" required>
-                            <option value="">اختر المحافظة...</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>المنطقة</label>
-                        <select id="f_area" required>
-                            <option value="">اختر المنطقة...</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>اسم المنشأة</label>
-                        <input type="text" id="f_facility_name" required placeholder="اسم الشركة / المصنع">
-                    </div>
-
-                    <div class="form-group">
-                        <label>نوع المنشأة</label>
-                        <select id="f_facility_type"></select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>القطاع الصناعي</label>
-                        <select id="f_industrial_sector"></select>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label>العنوان</label>
-                        <input type="text" id="f_address" placeholder="تفاصيل العنوان">
-                    </div>
-
-                    <div class="form-group">
-                        <label>اسم الشخص المسؤول</label>
-                        <input type="text" id="f_contact_person">
-                    </div>
-
-                    <div class="form-group">
-                        <label>المسمى الوظيفي</label>
-                        <input type="text" id="f_job_title">
-                    </div>
-
-                    <div class="form-group">
-                        <label>رقم الهاتف</label>
-                        <input type="tel" id="f_phone">
-                    </div>
-
-                    <div class="form-group">
-                        <label>البريد الإلكتروني</label>
-                        <input type="email" id="f_email">
-                    </div>
-
-                    <div class="form-group">
-                        <label>هل يستخدم كرتون معرّج؟</label>
-                        <select id="f_uses_carton"></select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>الكمية الشهرية التقريبية</label>
-                        <input type="number" id="f_monthly_qty">
-                    </div>
-
-                    <div class="form-group">
-                        <label>درجة الاهتمام</label>
-                        <select id="f_interest_level"></select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>فرصة بيع</label>
-                        <select id="f_sales_opportunity"></select>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label>ملاحظات المندوب</label>
-                        <textarea id="f_notes" rows="3"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>اسم مندوب المبيعات</label>
-                        <select id="f_sales_rep"></select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>تاريخ الزيارة</label>
-                        <input type="date" id="f_visit_date" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>زيارة متابعة؟</label>
-                        <select id="f_follow_up"></select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>التقييم (1-10)</label>
-                        <input type="range" id="f_rating" min="1" max="10" value="5">
-                        <span id="rating-val">5</span>
-                    </div>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" id="saveBtn" class="btn-primary">حفظ الزيارة</button>
-                    <button type="reset" class="btn-secondary">مسح الحقول</button>
-                </div>
-            </form>
-
-            <hr class="section-divider">
-
-            <div class="table-controls">
-                <input type="text" id="globalFilter" placeholder="بحث في جميع الحقول...">
+        <form id="loginForm">
+            <div class="form-group">
+                <label>اسم المستخدم</label>
+                <input type="text" id="username" class="login-input" placeholder="اسم المستخدم..." required>
             </div>
 
-            <div class="table-wrapper">
-                <table id="visitsTable">
-                    <thead>
-                        <tr>
-                            <th>التاريخ</th>
-                            <th>المنشأة</th>
-                            <th>المحافظة</th>
-                            <th>المندوب</th>
-                            <th>فرصة بيع</th>
-                            <th>التقييم</th>
-                            <th>إجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        </tbody>
-                </table>
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <input type="password" id="password" class="login-input" placeholder="••••••••" required>
+                <span class="pass-toggle" id="eyeIcon">👁️</span>
             </div>
-        </section>
-    </main>
 
-    <script src="global-config.js"></script>
-    <script src="visits.js"></script>
+            <button type="submit" id="submitBtn" class="login-btn">دخول للنظام 🚀</button>
+        </form>
+    </div>
+
+    <div id="mspModal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="modalIcon" class="modal-icon"></div>
+            <h3 id="modalTitle" class="modal-title"></h3>
+            <p id="modalText" class="modal-text"></p>
+            <button onclick="closeMspModal()" class="modal-close-btn">فهمت</button>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
 </body>
 </html>

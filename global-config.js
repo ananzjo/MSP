@@ -1,34 +1,27 @@
-/**
- * global-config.js
- * Shared features for MSP (Modern Style Pack)
- * Handles Sidebar, Header Clock, and API Connection
- */
+/* === BEGIN GLOBAL CONFIG SCRIPT [Sales Visits App] === */
 
-// 1. Configuration & Backend Link
-// global-config.js - قم بتحديث هذا السطر فقط
 const CONFIG = {
-    API_URL: "https://script.google.com/macros/s/AKfycbx0zL3AFrk3PM7WDA5wApijlO78focSdaWfVK1Ikh-iHKNbm4kfiSDbhWy0Q24UuTKH/exec",
-    SYSTEM_NAME: "MSP | Modern Style Pack | الطراز الحديث للتغليف"
+    SB_URL: "https://iowfsncjhzysomybiipk.supabase.co",
+    SB_KEY: "sb_publishable_7LHRjeb5IV8XRQJcX-8Ung_lE_iIwsS",
+    SYSTEM_NAME: "Sales Visits App",
+    COMPANY: "MSP | Modern Style Pack | شركة الطراز للتغليف"
 };
+
+// تهيئة مكتبة Supabase (يجب استدعاء المكتبة في HTML أولاً)
+const supabaseClient = supabase.createClient(CONFIG.SB_URL, CONFIG.SB_KEY);
 
 document.addEventListener('DOMContentLoaded', () => {
     initSidebar();
     initDigitalClock();
 });
 
-/**
- * 2. Sliding Sidebar Logic
- * Always use the 'Sliding Sidebar' template [cite: 2026-02-17]
- */
 function initSidebar() {
     const toggleBtn = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.querySelector('.main-content');
-
     if (toggleBtn) {
         toggleBtn.addEventListener('click', () => {
             sidebar.classList.toggle('closed');
-            // Toggle margin/width of main content for a smooth slide
             if (sidebar.classList.contains('closed')) {
                 sidebar.style.right = "-260px";
                 mainContent.style.marginRight = "0";
@@ -40,60 +33,28 @@ function initSidebar() {
     }
 }
 
-/**
- * 3. Pulsing Digital Taxi Clock
- * Indicates the connection between front end & back end [cite: 6, 7]
- */
 function initDigitalClock() {
     const clockElement = document.getElementById('digital-clock');
     const pulseIndicator = document.querySelector('.pulse-indicator');
-
-    function updateClock() {
+    setInterval(() => {
         const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        
-        if (clockElement) {
-            clockElement.textContent = `${hours}:${minutes}:${seconds}`;
-        }
-    }
-
-    // Update every second
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    // Verify Backend Connection Status
+        if (clockElement) clockElement.textContent = now.toLocaleTimeString('en-GB');
+    }, 1000);
     checkConnection(pulseIndicator);
 }
 
-/**
- * Checks connectivity to the Apps Script URL
- * Updates the pulsing indicator color based on status
- */
 async function checkConnection(indicator) {
     try {
-        const response = await fetch(CONFIG.API_URL + "?action=ping");
-        if (response.ok) {
-            indicator.style.backgroundColor = "#2fb45a"; // MSP Logo Green (Connected)
-        } else {
-            indicator.style.backgroundColor = "#ff4d4d"; // Red (Server Error)
-        }
-    } catch (error) {
-        indicator.style.backgroundColor = "#ff4d4d"; // Red (Offline)
-        console.error("MSP System: Connection to Google Sheets failed.");
+        // اختبار الاتصال بجدول القوائم
+        const { error } = await supabaseClient.from('t02_lists').select('id').limit(1);
+        indicator.style.backgroundColor = error ? "#ff4d4d" : "#2fb45a";
+    } catch (e) {
+        indicator.style.backgroundColor = "#ff4d4d";
     }
 }
 
-// Global Notification System (Shared across all pages) [cite: 2026-02-17]
 function showNotification(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.className = `msp-toast msp-toast-${type}`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.classList.add('fade-out');
-        setTimeout(() => toast.remove(), 500);
-    }, 3000);
+    alert(`${type.toUpperCase()}: ${message}`); 
 }
+
+/* === END GLOBAL CONFIG SCRIPT === */
