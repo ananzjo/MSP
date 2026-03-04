@@ -26,22 +26,22 @@ function injectSharedUI() {
         }
         body { 
             background: radial-gradient(circle at center, #1e272e 0%, #050505 100%);
-            color: white; margin: 0; font-family: 'Segoe UI', sans-serif; display: flex; direction: rtl;
+            color: white; margin: 0; font-family: 'Segoe UI', sans-serif; display: flex; direction: rtl; min-height: 100vh;
         }
         .sidebar { 
-            width: 260px; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px);
+            width: 260px; background: rgba(0,0,0,0.6); backdrop-filter: blur(15px);
             height: 100vh; position: fixed; right: 0; border-left: 1px solid var(--border);
-            padding: 30px 20px; box-sizing: border-box;
+            padding: 30px 20px; box-sizing: border-box; z-index: 1000;
         }
         .nav-link { 
             display: flex; align-items: center; padding: 12px 15px; color: #aaa;
             text-decoration: none; border-radius: 10px; margin-bottom: 10px; transition: 0.3s;
         }
-        .nav-link:hover, .nav-link.active { background: var(--msp-green); color: white; transform: translateX(-5px); }
-        .main-wrapper { margin-right: 260px; width: 100%; padding: 40px; box-sizing: border-box; }
+        .nav-link:hover, .nav-link.active { background: var(--msp-green); color: white; }
+        .main-wrapper { margin-right: 260px; width: calc(100% - 260px); padding: 40px; box-sizing: border-box; }
         .msp-card { 
-            background: var(--glass); backdrop-filter: blur(15px); border: 1px solid var(--border);
-            border-radius: 20px; padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--border);
+            border-radius: 20px; padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); margin-bottom: 25px;
         }
         #digitalClock { font-family: 'Orbitron', sans-serif; color: var(--msp-green); font-size: 1.6rem; text-shadow: 0 0 10px var(--msp-green); }
         .btn-luxury {
@@ -50,51 +50,43 @@ function injectSharedUI() {
             cursor: pointer; font-weight: bold; transition: 0.3s;
         }
         .btn-luxury:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(47, 180, 90, 0.4); }
+        input, select, textarea { 
+            width: 100%; background: rgba(255,255,255,0.05); color: white; 
+            border: 1px solid var(--border); padding: 10px; border-radius: 8px; box-sizing: border-box;
+        }
+        label { display: block; margin-bottom: 8px; color: var(--msp-bronze); font-size: 0.85rem; }
     `;
     document.head.appendChild(style);
 
-    const uiHTML = `
+    const sidebarHTML = `
         <div class="sidebar">
-            <img src="MSP_Logo.jpeg" style="width:120px; margin-bottom:40px; display:block; margin-right:auto; margin-left:auto;">
+            <img src="MSP_Logo.jpeg" style="width:120px; margin-bottom:40px; display:block; margin: 0 auto 40px;">
             <a href="dashboard.html" class="nav-link ${window.location.pathname.includes('dashboard')?'active':''}">📊 لوحة التحكم | Dashboard</a>
             <a href="visits.html" class="nav-link ${window.location.pathname.includes('visits')?'active':''}">📝 توثيق زيارة | New Visit</a>
             <a href="#" onclick="logout()" class="nav-link" style="margin-top:50px; color:#ff4757;">🚪 خروج | Logout</a>
         </div>
-        <div class="main-wrapper">
-            <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
-                <div>
-                    <h2 style="margin:0; color:var(--msp-bronze);">نظام إدارة مبيعات MSP</h2>
-                    <small style="color:#888;">Modern Style Pack Sales System</small>
-                </div>
-                <div id="digitalClock">00:00:00</div>
-            </header>
-            <div id="pageContent"></div>
-        </div>
-        <div id="mspModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
-            <div class="msp-card" style="width:400px; text-align:center;">
-                <div id="modalIcon" style="font-size:3rem; margin-bottom:15px;"></div>
-                <h3 id="modalTitle"></h3>
-                <p id="modalText" style="color:#ccc;"></p>
-                <button class="btn-luxury" onclick="closeMspModal()">إغلاق | Close</button>
-            </div>
-        </div>
     `;
-    document.body.innerHTML = uiHTML;
+    document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
 }
 
 function showNotification(title, msg, type = 'success') {
-    const modal = document.getElementById('mspModal');
-    document.getElementById('modalTitle').textContent = title;
-    document.getElementById('modalText').textContent = msg;
-    document.getElementById('modalIcon').textContent = type === 'success' ? '✅' : '⚠️';
-    modal.style.display = 'flex';
+    const modalHTML = `
+        <div id="mspModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(5px);">
+            <div class="msp-card" style="width:400px; text-align:center;">
+                <div style="font-size:3.5rem; margin-bottom:15px;">${type === 'success' ? '✅' : '⚠️'}</div>
+                <h3 style="color:white;">${title}</h3>
+                <p style="color:#bbb; margin-bottom:25px;">${msg}</p>
+                <button class="btn-luxury" onclick="this.parentElement.parentElement.remove()">إغلاق | Close</button>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
-
-function closeMspModal() { document.getElementById('mspModal').style.display = 'none'; }
 
 function initDigitalClock() {
     setInterval(() => {
-        document.getElementById('digitalClock').textContent = new Date().toLocaleTimeString('ar-EG', {hour12:false});
+        const el = document.getElementById('digitalClock');
+        if(el) el.textContent = new Date().toLocaleTimeString('ar-EG', {hour12:false});
     }, 1000);
 }
 
