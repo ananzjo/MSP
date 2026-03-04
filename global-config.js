@@ -1,6 +1,6 @@
 /* === MSP System Engine V5.0 - Elegant Light Theme === */
-const SB_URL = "https://tjntctaapsdynbywdfns.supabase.co";
-const SB_KEY = "sb_publishable_BJgdmxyFsCgzFDXh1Qn1CQ_cFRMsy2P";
+const SB_URL = "https://iowfsncjhzysomybiipk.supabase.co"; // الرابط الجديد
+const SB_KEY = "sb_publishable_BJgdmxyFsCgzFDXh1Qn1CQ_cFRMsy2P"; // تأكد من مطابقة هذا المفتاح للمشروع الجديد
 const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -79,3 +79,4 @@ function initDigitalClock() {
 function showNotification(title, msg, type = 'success') {
     alert(`${title}\n${msg}`); // يمكن تطويره لمودال أنيق لاحقاً
 }
+
