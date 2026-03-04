@@ -1,4 +1,4 @@
-/* === MSP System - Core Global Engine [V3.0] === */
+/* === MSP System - Core Global Engine [V3.1 - Mapped Version] === */
 
 const CONFIG = {
     SB_URL: "https://iowfsncjhzysomybiipk.supabase.co",
@@ -46,42 +46,34 @@ function checkAuth(isLoginPage) {
  * بناء الواجهة المشتركة (Sidebar, Header, CSS)
  */
 function injectSharedUI(user) {
-    // حقن التصميم الاحترافي (CSS)
     const style = document.createElement('style');
     style.textContent = `
         :root { --msp-green: #2fb45a; --msp-dark: #0a0a0a; --sidebar-w: 260px; --msp-bronze: #b08d57; }
         body { margin: 0; background: var(--msp-dark); font-family: 'Segoe UI', sans-serif; color: white; overflow-x: hidden; }
         
-        /* Sidebar */
         .msp-sidebar { position: fixed; right: 0; top: 0; width: var(--sidebar-w); height: 100vh; 
                        background: rgba(15,15,15,0.95); backdrop-filter: blur(15px); border-left: 1px solid rgba(255,255,255,0.05);
                        z-index: 1001; transition: 0.3s ease; display: flex; flex-direction: column; }
         .msp-sidebar.closed { right: -260px; }
         
-        /* Header */
         .msp-header { position: fixed; top: 0; right: 0; left: 0; height: 65px; background: rgba(0,0,0,0.6);
                       backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between;
                       padding: 0 20px; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
         
-        /* Main Content Adjustment */
         .main-content { margin-right: var(--sidebar-w); padding: 85px 25px 25px; transition: 0.3s; min-height: 100vh; box-sizing: border-box; }
         body.sidebar-closed .main-content { margin-right: 0; }
 
-        /* Digital Clock & Pulse */
         .clock-box { display: flex; align-items: center; gap: 12px; font-family: 'Consolas', monospace; color: var(--msp-green); }
         .pulse-led { width: 10px; height: 10px; border-radius: 50%; background: var(--msp-green); box-shadow: 0 0 10px var(--msp-green); animation: pulse-anim 1.5s infinite; }
         @keyframes pulse-anim { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.8); } }
 
-        /* Navigation */
         .nav-link { padding: 15px 25px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; color: #aaa; text-decoration: none; }
         .nav-link:hover { background: rgba(47, 180, 90, 0.1); color: white; }
         .nav-link.active { color: var(--msp-green); background: rgba(47, 180, 90, 0.05); border-right: 4px solid var(--msp-green); }
-        
         .menu-toggle { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 5px; }
     `;
     document.head.appendChild(style);
 
-    // إنشاء الـ Sidebar
     const sidebar = document.createElement('aside');
     sidebar.id = 'sidebar';
     sidebar.className = 'msp-sidebar';
@@ -102,7 +94,6 @@ function injectSharedUI(user) {
     `;
     document.body.appendChild(sidebar);
 
-    // إنشاء الـ Header
     const header = document.createElement('header');
     header.className = 'msp-header';
     header.innerHTML = `
@@ -136,15 +127,17 @@ function initDigitalClock() {
         if (el) el.textContent = new Date().toLocaleTimeString('en-GB');
     }, 1000);
     
-    // فحص بسيط للاتصال بـ Supabase لتغيير لون النبضة
+    // فحص الاتصال: تم تعديل الاستعلام ليناسب حقل f00_record_no لجدول t02_lists
     setInterval(async () => {
         const pulse = document.getElementById('connPulse');
         if (!pulse) return;
         try {
-            const { error } = await supabaseClient.from('t02_lists').select('id').limit(1);
+            const { error } = await supabaseClient.from('t02_lists').select('f00_record_no').limit(1);
             pulse.style.background = error ? "#ff4d4d" : "#2fb45a";
             pulse.style.boxShadow = error ? "0 0 10px #ff4d4d" : "0 0 10px #2fb45a";
-        } catch (e) { pulse.style.background = "#ff4d4d"; }
+        } catch (e) { 
+            pulse.style.background = "#ff4d4d"; 
+        }
     }, 30000);
 }
 
@@ -184,7 +177,6 @@ function logout() {
     window.location.replace('login.html');
 }
 
-// دالة عالمية للإشعارات (تستخدم المودال إذا وجد)
 function showNotification(msg, type = 'success') {
     if (typeof showMspModal === 'function') {
         showMspModal(type === 'success'?'تمت العملية':'خطأ', msg, type);
