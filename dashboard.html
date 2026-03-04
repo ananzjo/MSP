@@ -4,72 +4,116 @@
     <meta charset="UTF-8">
     <title>Dashboard | MSP System</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="global-config.js"></script>
 </head>
 <body>
     <div class="main-wrapper">
         <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
             <div>
-                <h1 style="margin:0; color:var(--msp-green); font-size:1.8rem;">لوحة التحكم | Sales Dashboard</h1>
-                <p style="color:#888; margin:5px 0 0;">متابعة أداء مناديب شركة الطراز الحديث | Modern Style Pack</p>
+                <h1 style="margin:0; color:var(--msp-green); font-size:1.8rem;">لوحة التحكم الشاملة | Comprehensive Dashboard</h1>
+                <p style="color:#aaa; margin:5px 0 0;">شركة الطراز الحديث | Modern Style Pack (MSP)</p>
             </div>
             <div id="digitalClock">00:00:00</div>
         </header>
 
-        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:25px;">
-            
-            <div class="msp-card" style="text-align:center; border-bottom: 4px solid var(--msp-green);">
-                <div style="font-size: 0.9rem; color: var(--msp-bronze); font-weight: bold; margin-bottom: 10px;">إجمالي الزيارات | Total Visits</div>
-                <h1 id="totalVisits" style="color:white; font-size:3.5rem; margin:0; font-family: 'Orbitron', sans-serif;">0</h1>
-                <p style="color:#666; font-size:0.8rem; margin-top:10px;">منذ بداية الشهر الحالي</p>
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:25px; margin-bottom: 30px;">
+            <div class="msp-card" style="text-align:center; border-right: 5px solid var(--msp-green);">
+                <label>إجمالي الزيارات | Total Visits</label>
+                <h1 id="totalVisits" style="font-size:3rem; margin:10px 0; font-family: 'Orbitron', sans-serif;">0</h1>
             </div>
-
-            <div class="msp-card" style="text-align:center; border-bottom: 4px solid #ff4757;">
-                <div style="font-size: 0.9rem; color: var(--msp-bronze); font-weight: bold; margin-bottom: 10px;">فرص فورية | Hot Leads 🔥</div>
-                <h1 id="hotLeads" style="color:#ff4757; font-size:3.5rem; margin:0; font-family: 'Orbitron', sans-serif;">0</h1>
-                <p style="color:#666; font-size:0.8rem; margin-top:10px;">تحتاج إغلاق بيع فوري</p>
+            <div class="msp-card" style="text-align:center; border-right: 5px solid #ff4757;">
+                <label>فرص فورية | Hot Leads 🔥</label>
+                <h1 id="hotLeads" style="color:#ff4757; font-size:3rem; margin:10px 0; font-family: 'Orbitron', sans-serif;">0</h1>
             </div>
-
-            <div class="msp-card" style="text-align:center; border-bottom: 4px solid var(--msp-bronze);">
-                <div style="font-size: 0.9rem; color: var(--msp-bronze); font-weight: bold; margin-bottom: 10px;">الكمية المتوقعة | Est. Qty (kg)</div>
-                <h1 id="totalQty" style="color:var(--msp-bronze); font-size:3.5rem; margin:0; font-family: 'Orbitron', sans-serif;">0</h1>
-                <p style="color:#666; font-size:0.8rem; margin-top:10px;">إجمالي احتياج العملاء الموثق</p>
+            <div class="msp-card" style="text-align:center; border-right: 5px solid var(--msp-bronze);">
+                <label>الكمية المستهدفة | Est. Qty (kg)</label>
+                <h1 id="totalQty" style="color:var(--msp-bronze); font-size:3rem; margin:10px 0; font-family: 'Orbitron', sans-serif;">0</h1>
             </div>
-
         </div>
 
-        <footer style="margin-top: 50px; text-align: center; color: #444; border-top: 1px solid var(--border); padding-top: 20px;">
-            <p>© 2026 Modern Style Pack | MSP Sales Intelligence Unit</p>
-        </footer>
+        <div style="display:grid; grid-template-columns: 1.5fr 1fr; gap:25px;">
+            <div class="msp-card">
+                <h3 style="color:var(--msp-green); border-bottom:1px solid var(--border); padding-bottom:10px;">تحليل الزيارات حسب المناطق | Regional Analysis</h3>
+                <div style="height: 350px; display: flex; justify-content: center; align-items: center;">
+                    <canvas id="regionChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="msp-card">
+                <h3 style="color:var(--msp-bronze); border-bottom:1px solid var(--border); padding-bottom:10px;">أعلى المحافظات نشاطاً</h3>
+                <div id="topRegionsList" style="margin-top:20px;">
+                    </div>
+            </div>
+        </div>
     </div>
+
+    
 
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                // جلب البيانات من جدول t01_visits بناءً على السكيمة
                 const { data: visits, error } = await supabaseClient
                     .from('t01_visits')
-                    .select('f12_monthly_qty, f14_sales_opportunity');
+                    .select('f01_governorate, f12_monthly_qty, f14_sales_opportunity');
 
                 if (error) throw error;
 
                 if (visits) {
-                    // 1. حساب إجمالي الزيارات
+                    // 1. تحديث الأرقام العلوية
                     document.getElementById('totalVisits').textContent = visits.length;
-
-                    // 2. حساب الفرص الفورية (Hot Leads)
-                    const hotCount = visits.filter(v => v.f14_sales_opportunity === 'فورية').length;
-                    document.getElementById('hotLeads').textContent = hotCount;
-
-                    // 3. حساب إجمالي الكميات المتوقعة (f12)
+                    document.getElementById('hotLeads').textContent = visits.filter(v => v.f14_sales_opportunity === 'فورية').length;
                     const totalQty = visits.reduce((sum, v) => sum + (parseFloat(v.f12_monthly_qty) || 0), 0);
                     document.getElementById('totalQty').textContent = totalQty.toLocaleString();
+
+                    // 2. معالجة بيانات الرسم الدائري (تجميع حسب المحافظة)
+                    const regionCounts = {};
+                    visits.forEach(v => {
+                        const reg = v.f01_governorate || 'غير محدد';
+                        regionCounts[reg] = (regionCounts[reg] || 0) + 1;
+                    });
+
+                    renderChart(regionCounts);
+                    renderList(regionCounts);
                 }
             } catch (err) {
-                console.error("Dashboard Load Error:", err.message);
-                showNotification("خطأ في البيانات", "تعذر جلب إحصائيات لوحة التحكم من السحابة.", "error");
+                console.error(err);
             }
         });
+
+        function renderChart(counts) {
+            const ctx = document.getElementById('regionChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut', // قطاع دائري مفرغ (أكثر عصرية)
+                data: {
+                    labels: Object.keys(counts),
+                    datasets: [{
+                        data: Object.values(counts),
+                        backgroundColor: ['#2fb45a', '#b08d57', '#3498db', '#e74c3c', '#f1c40f', '#9b59b6'],
+                        borderWidth: 0,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#ccc', font: { size: 12 } } }
+                    }
+                }
+            });
+        }
+
+        function renderList(counts) {
+            const listDiv = document.getElementById('topRegionsList');
+            const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+            listDiv.innerHTML = sorted.map(([name, val]) => `
+                <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <span>${name}</span>
+                    <strong style="color:var(--msp-green)">${val} زيارة</strong>
+                </div>
+            `).join('');
+        }
     </script>
 </body>
 </html>
