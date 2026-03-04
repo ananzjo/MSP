@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>New Visit | MSP</title>
+    <title>New Visit | MSP System</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="global-config.js"></script>
 </head>
@@ -10,43 +10,43 @@
     <div class="main-wrapper">
         <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
             <div>
-                <h2 style="margin:0; color:var(--msp-bronze);">توثيق زيارة ميدانية | New Visit</h2>
-                <small style="color:#888;">Modern Style Pack Sales System</small>
+                <h1 style="margin:0; color:var(--msp-green); font-size:1.8rem;">توثيق زيارة ميدانية | New Sales Visit</h1>
+                <p style="color:#888; margin:5px 0 0;">نظام إدارة مبيعات شركة الطراز الحديث | Modern Style Pack</p>
             </div>
             <div id="digitalClock">00:00:00</div>
         </header>
 
         <div class="msp-card">
             <form id="visitForm">
-                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:20px;">
+                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:25px;">
                     <div><label>المحافظة | Governorate (f01)</label><select id="f01_governorate" required></select></div>
                     <div><label>المنطقة | Area (f02)</label><select id="f02_area" required></select></div>
-                    <div><label>اسم المنشأة | Facility Name (f03)</label><input type="text" id="f03_facility_name" required></div>
+                    <div><label>اسم المنشأة | Facility Name (f03)</label><input type="text" id="f03_facility_name" required placeholder="مثال: مصنع الأمل"></div>
                     
                     <div><label>نوع المنشأة | Facility Type (f04)</label><input type="text" id="f04_facility_type"></div>
-                    <div><label>القطاع | Sector (f05)</label><input type="text" id="f05_industrial_sector"></div>
-                    <div><label>العنوان | Address (f06)</label><input type="text" id="f06_address"></div>
+                    <div><label>القطاع الصناعي | Industrial Sector (f05)</label><input type="text" id="f05_industrial_sector"></div>
+                    <div><label>العنوان بالتفصيل | Detailed Address (f06)</label><input type="text" id="f06_address"></div>
 
-                    <div><label>المسؤول | Contact Person (f07)</label><input type="text" id="f07_contact_person"></div>
+                    <div><label>الشخص المسؤول | Contact Person (f07)</label><input type="text" id="f07_contact_person"></div>
                     <div><label>المسمى الوظيفي | Job Title (f08)</label><input type="text" id="f08_job_title"></div>
-                    <div><label>الهاتف | Phone (f09)</label><input type="tel" id="f09_phone"></div>
+                    <div><label>رقم الهاتف | Phone Number (f09)</label><input type="tel" id="f09_phone"></div>
 
-                    <div><label>البريد | Email (f10)</label><input type="email" id="f10_email"></div>
+                    <div><label>البريد الإلكتروني | Email (f10)</label><input type="email" id="f10_email"></div>
                     <div><label>استهلاك كرتون | Uses Carton (f11)</label><select id="f11_uses_carton"><option value="نعم">نعم | Yes</option><option value="لا">لا | No</option></select></div>
-                    <div><label>الكمية المتوقعة | Est. Qty (f12)</label><input type="number" id="f12_monthly_qty"></div>
+                    <div><label>الكمية المتوقعة (كغم) | Est. Qty (f12)</label><input type="number" id="f12_monthly_qty"></div>
 
-                    <div><label>مستوى الاهتمام | Interest (f13)</label><input type="text" id="f13_interest_level"></div>
-                    <div><label>الفرصة | Opportunity (f14)</label><select id="f14_sales_opportunity"><option value="عادية">عادية | Regular</option><option value="فورية">فورية | Hot</option></select></div>
-                    <div><label>التاريخ | Date (f17)</label><input type="date" id="f17_visit_date" required></div>
+                    <div><label>مستوى الاهتمام | Interest Level (f13)</label><input type="text" id="f13_interest_level"></div>
+                    <div><label>فرصة المبيعات | Sales Opportunity (f14)</label><select id="f14_sales_opportunity"><option value="عادية">عادية | Regular</option><option value="فورية">فورية | Hot Lead 🔥</option></select></div>
+                    <div><label>تاريخ الزيارة | Visit Date (f17)</label><input type="date" id="f17_visit_date" required></div>
 
-                    <div><label>متابعة؟ | Follow-up (f18)</label><select id="f18_follow_up"><option value="لا">لا | No</option><option value="نعم">نعم | Yes</option></select></div>
-                    <div><label>التقييم 1-10 | Rating (f19)</label><input type="number" id="f19_rating" min="1" max="10"></div>
-                    <div><label>الحالة | Status (f_status)</label><input type="text" value="جديد" readonly></div>
+                    <div><label>تحتاج متابعة؟ | Follow-up? (f18)</label><select id="f18_follow_up"><option value="لا">لا | No</option><option value="نعم">نعم | Yes</option></select></div>
+                    <div><label>تقييم الزيارة 1-10 | Visit Rating (f19)</label><input type="number" id="f19_rating" min="1" max="10" value="5"></div>
+                    <div><label>حالة الملف | File Status</label><input type="text" value="نشط | Active" readonly style="opacity:0.6;"></div>
 
-                    <div style="grid-column: span 3;"><label>ملاحظات إضافية | Notes (f15)</label><textarea id="f15_notes" rows="3"></textarea></div>
+                    <div style="grid-column: span 3;"><label>ملاحظات إضافية | Additional Notes (f15)</label><textarea id="f15_notes" rows="3" placeholder="أدخل تفاصيل النقاش مع العميل..."></textarea></div>
                 </div>
-                <div style="text-align:left; margin-top:30px;">
-                    <button type="submit" class="btn-luxury">حفظ البيانات | Save Document 💾</button>
+                <div style="text-align:left; margin-top:35px; border-top: 1px solid var(--border); padding-top:25px;">
+                    <button type="submit" class="btn-luxury">حفظ وتوثيق البيانات | Save & Document 💾</button>
                 </div>
             </form>
         </div>
