@@ -1,89 +1,70 @@
-/* === MSP Sales - Visits Logic [Fixed V3.2] === */
+/* === MSP Sales Documentation - Visits Logic [V4.0] === */
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. تعيين تاريخ اليوم تلقائياً في حقل f17
-    const dateField = document.getElementById('f17_visit_date');
-    if (dateField) dateField.valueAsDate = new Date();
+    // 1. تعيين التاريخ الافتراضي (f17_visit_date) ليومنا هذا
+    const dateInput = document.getElementById('f17_visit_date');
+    if (dateInput) dateInput.valueAsDate = new Date();
 
-    // 2. تحميل المحافظات من جدول t02_lists
-    await loadGovernorates();
+    // 2. تحميل القوائم (المحافظات والمناطق) من t02_lists
+    await loadLocationLists();
 
-    // 3. مستمع تغيير المحافظة لتحميل المناطق
-    const govSelect = document.getElementById('f01_governorate');
-    if (govSelect) {
-        govSelect.addEventListener('change', (e) => {
-            loadAreas(e.target.value);
-        });
-    }
+    // 3. جلب آخر الزيارات الموثقة لعرضها في الجدول السفلي
+    await fetchRecentVisits();
 
-    // 4. معالجة حفظ النموذج
+    // 4. معالجة إرسال النموذج (Submit)
     const visitForm = document.getElementById('visitForm');
     if (visitForm) {
         visitForm.addEventListener('submit', handleSaveVisit);
     }
-
-    // 5. جلب وعرض البيانات في الجدول السفلي
-    fetchRecentVisits();
 });
 
-async function loadGovernorates() {
+/**
+ * وظيفة تحميل المحافظات والمناطق المرتبطة
+ */
+async function loadLocationLists() {
     const govSelect = document.getElementById('f01_governorate');
-    if (!govSelect) return; // حماية من خطأ Null
-
-    try {
-        const { data, error } = await supabaseClient
-            .from('t02_lists')
-            .select('*')
-            .eq('f01_category', 'governorate');
-
-        if (error) throw error;
-
-        govSelect.innerHTML = '<option value="">اختر المحافظة...</option>';
-        data.forEach(gov => {
-            // نستخدم f02_label_ar كقيمة ونص بناءً على السكيمة الخاصة بك
-            govSelect.innerHTML += `<option value="${gov.f00_record_no}">${gov.f02_label_ar}</option>`;
-        });
-    } catch (err) {
-        console.error("Gov Load Error:", err.message);
-    }
-}
-
-async function loadAreas(parentNo) {
     const areaSelect = document.getElementById('f02_area');
-    if (!areaSelect) return;
-
-    if (!parentNo) {
-        areaSelect.innerHTML = '<option value="">اختر المحافظة أولاً...</option>';
-        return;
-    }
+    if (!govSelect || !areaSelect) return;
 
     try {
         const { data, error } = await supabaseClient
             .from('t02_lists')
-            .select('*')
-            .eq('f01_category', 'area')
-            .eq('f05_parent_no', parentNo);
+            .select('*');
 
         if (error) throw error;
 
-        areaSelect.innerHTML = '<option value="">اختر المنطقة...</option>';
-        data.forEach(area => {
-            areaSelect.innerHTML += `<option value="${area.f02_label_ar}">${area.f02_label_ar}</option>`;
+        // تصفية المحافظات
+        const govs = data.filter(item => item.f01_category === 'governorate');
+        govSelect.innerHTML = '<option value="">اختر المحافظة...</option>' + 
+            govs.map(g => `<option value="${g.f00_record_no}" data-name="${g.f02_label_ar}">${g.f02_label_ar}</option>`).join('');
+
+        // مستمع تغيير المحافظة لتحديث المناطق
+        govSelect.addEventListener('change', () => {
+            const selectedGovId = govSelect.value;
+            const filteredAreas = data.filter(item => item.f01_category === 'area' && item.f05_parent_no == selectedGovId);
+            
+            areaSelect.innerHTML = '<option value="">اختر المنطقة...</option>' + 
+                filteredAreas.map(a => `<option value="${a.f02_label_ar}">${a.f02_label_ar}</option>`).join('');
         });
+
     } catch (err) {
-        console.error("Area Load Error:", err.message);
+        console.error("خطأ في تحميل القوائم:", err.message);
     }
 }
 
+/**
+ * وظيفة حفظ الزيارة في جدول t01_visits
+ */
 async function handleSaveVisit(e) {
     e.preventDefault();
-    const btn = e.target.querySelector('button[type="submit"]');
-    btn.disabled = true;
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'جاري التوثيق... ⏳';
 
     const user = JSON.parse(localStorage.getItem('msp_user'));
-    
-    // بناء كائن البيانات بناءً على SQL Schema (t01_visits)
-    const visitData = {
+
+    // بناء كائن البيانات لمطابقة السكيمة (20 حقلاً)
+    const visitRecord = {
         f01_governorate: document.getElementById('f01_governorate').options[document.getElementById('f01_governorate').selectedIndex].text,
         f02_area: document.getElementById('f02_area').value,
         f03_facility_name: document.getElementById('f03_facility_name').value,
@@ -101,26 +82,38 @@ async function handleSaveVisit(e) {
         f16_sales_rep: user ? user.f_full_name : 'Unknown',
         f17_visit_date: document.getElementById('f17_visit_date').value,
         f18_follow_up: document.getElementById('f18_follow_up').value,
-        f19_rating: parseInt(document.getElementById('f19_rating').value) || 5
+        f19_rating: parseInt(document.getElementById('f19_rating').value) || 5,
+        f20_user_id: user ? user.id : null // ربط الزيارة بهوية المستخدم
     };
 
     try {
-        const { error } = await supabaseClient.from('t01_visits').insert([visitData]);
+        const { error } = await supabaseClient
+            .from('t01_visits')
+            .insert([visitRecord]);
+
         if (error) throw error;
 
-        showNotification("تم توثيق الزيارة بنجاح ✅", "success");
+        // إشعار النجاح باستخدام المودال العالمي
+        showNotification("نجاح التوثيق", "تم حفظ بيانات الزيارة والموقع بنجاح في السحابة.", "success");
+        
         e.target.reset();
-        fetchRecentVisits();
+        document.getElementById('f17_visit_date').valueAsDate = new Date();
+        await fetchRecentVisits(); // تحديث الجدول فوراً
+
     } catch (err) {
-        showNotification("خطأ أثناء الحفظ: " + err.message, "error");
+        showNotification("فشل الحفظ", err.message, "error");
     } finally {
-        btn.disabled = false;
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'حفظ وتوثيق الزيارة 💾';
     }
 }
 
+/**
+ * وظيفة جلب البيانات للجدول السفلي
+ */
 async function fetchRecentVisits() {
-    const tableBody = document.getElementById('visitsTableBody');
-    if (!tableBody) return;
+    const tbody = document.getElementById('visitsTableBody');
+    if (!tbody) return;
 
     try {
         const { data, error } = await supabaseClient
@@ -131,17 +124,20 @@ async function fetchRecentVisits() {
 
         if (error) throw error;
 
-        tableBody.innerHTML = data.map(v => `
+        tbody.innerHTML = data.map(v => `
             <tr>
-                <td>${v.f17_visit_date}</td>
-                <td><b>${v.f03_facility_name}</b></td>
-                <td>${v.f01_governorate}</td>
+                <td><span style="color:var(--msp-bronze)">${v.f17_visit_date}</span></td>
+                <td><strong>${v.f03_facility_name}</strong></td>
+                <td>${v.f01_governorate} - ${v.f02_area}</td>
                 <td>${v.f07_contact_person || '-'}</td>
-                <td><span class="rating-badge">${v.f19_rating || 0}</span></td>
-                <td><button class="btn-secondary" style="padding:4px 8px" onclick="showMspModal('ملاحظات الزيارة','${v.f15_notes || 'لا يوجد'}','info')">👁️</button></td>
+                <td><span class="rating-badge">${v.f19_rating || 5}/10</span></td>
+                <td>
+                    <button class="btn-secondary" style="padding:5px 10px" onclick="alert('ملاحظات: ${v.f15_notes || "لا يوجد"}')">👁️</button>
+                </td>
             </tr>
         `).join('');
+
     } catch (err) {
-        console.error("Fetch Error:", err.message);
+        console.error("خطأ في جلب البيانات:", err.message);
     }
 }
