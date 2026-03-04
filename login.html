@@ -54,26 +54,27 @@
 
         .login-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(47, 180, 90, 0.3); }
 
-        /* تنسيق المودال (بديل Alert) */
+        /* تنسيق المودال الاحترافي */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px);
-            z-index: 1000; align-items: center; justify-content: center;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
+            z-index: 2000; align-items: center; justify-content: center;
         }
 
         .modal-content {
             background: #1c1c1c; border: 1px solid var(--glass-border);
-            padding: 30px; border-radius: 20px; text-align: center; color: white;
-            max-width: 320px; width: 80%; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            padding: 30px; border-radius: 25px; text-align: center; color: white;
+            max-width: 320px; width: 85%; box-shadow: 0 30px 60px rgba(0,0,0,0.8);
         }
 
         .modal-icon { font-size: 3.5rem; margin-bottom: 15px; }
-        .modal-title { margin: 0 0 10px 0; font-size: 1.3rem; }
-        .modal-text { opacity: 0.7; margin-bottom: 20px; font-size: 0.95rem; }
+        .modal-title { margin: 0 0 10px 0; font-size: 1.3rem; color: var(--msp-bronze); }
+        .modal-text { opacity: 0.8; margin-bottom: 25px; font-size: 0.95rem; line-height: 1.5; }
         .modal-close-btn {
-            background: var(--msp-green); border: none; color: white; padding: 10px 0;
-            width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer;
+            background: var(--msp-green); border: none; color: white; padding: 12px 0;
+            width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;
         }
+        .modal-close-btn:hover { opacity: 0.9; transform: scale(0.98); }
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -90,12 +91,12 @@
         <form id="loginForm">
             <div class="form-group">
                 <label>اسم المستخدم</label>
-                <input type="text" id="username" class="login-input" placeholder="اسم المستخدم..." required>
+                <input type="text" id="username" class="login-input" placeholder="اسم المستخدم..." required autocomplete="username">
             </div>
 
             <div class="form-group">
                 <label>كلمة المرور</label>
-                <input type="password" id="password" class="login-input" placeholder="••••••••" required>
+                <input type="password" id="password" class="login-input" placeholder="••••••••" required autocomplete="current-password">
                 <span class="pass-toggle" id="eyeIcon">👁️</span>
             </div>
 
@@ -108,7 +109,7 @@
             <div id="modalIcon" class="modal-icon"></div>
             <h3 id="modalTitle" class="modal-title"></h3>
             <p id="modalText" class="modal-text"></p>
-            <button onclick="closeMspModal()" class="modal-close-btn">فهمت</button>
+            <button onclick="closeMspModal()" class="modal-close-btn">موافق</button>
         </div>
     </div>
 
