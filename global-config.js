@@ -1,146 +1,138 @@
-/* MSP Dashboard Logic - SECURE & SYNCED VERSION */
+/* === MSP System - Core Global Engine === */
 
-// 1. حماية الصفحة: إذا لم تكن مسجلاً، اذهب للدخول فوراً
-(function checkAuth() {
-    if (!localStorage.getItem('msp_user')) {
-        window.location.replace('login.html');
-    }
-})();
+const CONFIG = {
+    SB_URL: "https://iowfsncjhzysomybiipk.supabase.co",
+    SB_KEY: "sb_publishable_7LHRjeb5IV8XRQJcX-8Ung_lE_iIwsS",
+    SYSTEM_NAME: "MSP - نظام إدارة المبيعات",
+    VERSION: "2.0.1"
+};
 
+const supabaseClient = supabase.createClient(CONFIG.SB_URL, CONFIG.SB_KEY);
+
+// 1. تشغيل المحرك عند تحميل أي صفحة
 document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        // جلب البيانات من Supabase
-        const { data: visits, error } = await supabaseClient.from('t01_visits').select('*');
-        
-        if (error) throw error;
-        if (!visits || visits.length === 0) {
-            console.warn("لا توجد بيانات لعرضها في لوحة التحكم");
-            return;
-        }
-
-        updateCounters(visits);
-        renderGeoChart(visits);
-        renderRepChart(visits);
-        renderQtyChart(visits);
-
-    } catch (err) {
-        console.error("Dashboard Loading Error:", err.message);
-    }
+    checkAuth();           // التأكد من الهوية
+    injectSharedUI();      // بناء المنيو والهيدر تلقائياً
+    initClock();           // تشغيل الساعة والنبض
+    logUserActivity();     // تسجيل الدخول في قاعدة البيانات
 });
 
-// 2. تحديث الأرقام العلوية (تأكد أن الـ IDs تطابق الـ HTML)
-function updateCounters(data) {
-    const totalVisitsEl = document.getElementById('totalVisits');
-    const hotLeadsEl = document.getElementById('hotLeads');
-    const totalQtyEl = document.getElementById('totalQty');
-    const avgRatingEl = document.getElementById('avgRating');
+/**
+ * 2. حماية الجلسة والتحقق من المستخدم
+ */
+function checkAuth() {
+    const user = JSON.parse(localStorage.getItem('msp_user'));
+    const isLoginPage = window.location.pathname.includes('login.html');
 
-    if (totalVisitsEl) totalVisitsEl.textContent = data.length;
-    
-    if (hotLeadsEl) {
-        const hotCount = data.filter(v => v.f14_sales_opportunity === 'فورية').length;
-        hotLeadsEl.textContent = hotCount;
-    }
-    
-    if (totalQtyEl) {
-        const totalQty = data.reduce((sum, v) => sum + (parseFloat(v.f12_monthly_qty) || 0), 0);
-        totalQtyEl.textContent = totalQty.toLocaleString();
-    }
-
-    if (avgRatingEl && data.length > 0) {
-        const avg = data.reduce((sum, v) => sum + (parseFloat(v.f19_rating) || 0), 0) / data.length;
-        avgRatingEl.textContent = avg.toFixed(1) + "/10";
+    if (!user && !isLoginPage) {
+        window.location.replace('login.html');
+    } else if (user && isLoginPage) {
+        window.location.replace('dashboard.html');
     }
 }
 
-// 3. الرسوم البيانية (بقيت كما هي مع إضافة حماية التأكد من وجود الـ Canvas)
-function renderGeoChart(data) {
-    const ctx = document.getElementById('geoChart');
-    if (!ctx) return;
+/**
+ * 3. بناء واجهة المستخدم المشتركة (Sidebar & Header)
+ */
+function injectSharedUI() {
+    if (window.location.pathname.includes('login.html')) return;
 
-    const counts = {};
-    data.forEach(v => counts[v.f01_governorate] = (counts[v.f01_governorate] || 0) + 1);
+    // حقن كود CSS الموحد
+    const style = document.createElement('style');
+    style.textContent = `
+        :root { --msp-green: #2fb45a; --msp-dark: #121212; --sidebar-w: 260px; }
+        body { margin: 0; background: #0a0a0a; color: white; transition: 0.3s; }
+        .main-content { margin-right: var(--sidebar-w); padding: 80px 20px 20px; transition: 0.3s; }
+        .sidebar.closed ~ .main-content { margin-right: 0; }
+        
+        /* Sidebar Styling */
+        .msp-sidebar { position: fixed; right: 0; top: 0; width: var(--sidebar-w); height: 100vh; 
+                       background: rgba(15,15,15,0.9); backdrop-filter: blur(15px); border-left: 1px solid rgba(255,255,255,0.05);
+                       z-index: 1000; transition: 0.3s ease; display: flex; flex-direction: column; }
+        .msp-sidebar.closed { right: calc(-1 * var(--sidebar-w)); }
+        
+        /* Header & Digital Clock */
+        .msp-header { position: fixed; top: 0; right: 0; left: 0; height: 60px; background: rgba(0,0,0,0.5);
+                      backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between;
+                      padding: 0 20px; z-index: 999; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .digital-box { display: flex; align-items: center; gap: 10px; font-family: 'Courier New', monospace; color: var(--msp-green); }
+        .pulse { width: 10px; height: 10px; border-radius: 50%; background: var(--msp-green); box-shadow: 0 0 10px var(--msp-green); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        
+        .nav-link { padding: 15px 25px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.3s; color: #ccc; }
+        .nav-link:hover { background: rgba(47, 180, 90, 0.1); color: white; }
+        .nav-link.active { color: var(--msp-green); border-right: 4px solid var(--msp-green); background: rgba(47, 180, 90, 0.05); }
+    `;
+    document.head.appendChild(style);
 
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(counts),
-            datasets: [{
-                data: Object.values(counts),
-                backgroundColor: ['#2fb45a', '#b08d57', '#3498db', '#e74c3c', '#f1c40f'],
-                borderWidth: 0
-            }]
-        },
-        options: { 
-            responsive: true,
-            plugins: { legend: { position: 'bottom', labels: { color: '#fff', font: { family: 'Segoe UI' } } } } 
-        }
-    });
+    // بناء الـ Sidebar
+    const sidebar = document.createElement('aside');
+    sidebar.id = 'sidebar';
+    sidebar.className = 'msp-sidebar';
+    sidebar.innerHTML = `
+        <div style="padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <img src="MSP_Logo.jpeg" style="width: 60px; border-radius: 10px;">
+            <h4 style="margin: 10px 0 0; color: #b08d57;">MSP System</h4>
+        </div>
+        <nav style="margin-top: 20px; flex-grow: 1;">
+            <div class="nav-link" onclick="location.href='dashboard.html'"><span>📊</span> الإحصائيات</div>
+            <div class="nav-link" onclick="location.href='visits.html'"><span>📝</span> الزيارات</div>
+            <div class="nav-link"><span>📁</span> التقارير</div>
+        </nav>
+        <div class="nav-link" style="color: #ff4d4d; border-top: 1px solid rgba(255,255,255,0.05);" onclick="logout()"><span>🚪</span> خروج</div>
+    `;
+    document.body.appendChild(sidebar);
+
+    // بناء الـ Header
+    const header = document.createElement('header');
+    header.className = 'msp-header';
+    header.innerHTML = `
+        <button onclick="toggleSidebar()" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">☰</button>
+        <div class="digital-box">
+            <div id="connectionStatus" class="pulse"></div>
+            <span id="mspClock" style="font-size: 1.2rem; font-weight: bold;">00:00:00</span>
+        </div>
+        <div style="font-size: 0.85rem; color: #888;">${JSON.parse(localStorage.getItem('msp_user')).f_full_name}</div>
+    `;
+    document.body.prepend(header);
 }
 
-// 4. رسم بياني للمناديب
-function renderRepChart(data) {
-    const ctx = document.getElementById('repChart');
-    if (!ctx) return;
-
-    const counts = {};
-    data.forEach(v => counts[v.f16_sales_rep] = (counts[v.f16_sales_rep] || 0) + 1);
-
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: Object.keys(counts),
-            datasets: [{
-                label: 'عدد الزيارات',
-                data: Object.values(counts),
-                backgroundColor: 'rgba(47, 180, 90, 0.6)',
-                borderColor: '#2fb45a',
-                borderWidth: 1
-            }]
-        },
-        options: { 
-            scales: { 
-                y: { beginAtZero: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-                x: { ticks: { color: '#fff' }, grid: { display: false } }
-            },
-            plugins: { legend: { display: false } }
-        }
-    });
+/**
+ * 4. تشغيل الساعة ومراقبة الاتصال
+ */
+function initClock() {
+    setInterval(() => {
+        const clock = document.getElementById('mspClock');
+        if (clock) clock.textContent = new Date().toLocaleTimeString('en-GB');
+    }, 1000);
 }
 
-// 5. تحليل الطلب المتوقع
-function renderQtyChart(data) {
-    const ctx = document.getElementById('qtyChart');
-    if (!ctx) return;
+window.toggleSidebar = () => {
+    const sb = document.getElementById('sidebar');
+    sb.classList.toggle('closed');
+};
 
-    const sorted = [...data].sort((a, b) => new Date(a.f17_visit_date) - new Date(b.f17_visit_date));
+/**
+ * 5. تسجيل نشاط المستخدم في قاعدة البيانات (Session Log)
+ * سأقوم بحفظ الدخول في جدول t98_logs
+ */
+async function logUserActivity() {
+    const user = JSON.parse(localStorage.getItem('msp_user'));
+    if (!user) return;
+
+    // تسجيل الدخول مرة واحدة فقط لكل جلسة
+    if (sessionStorage.getItem('logged_this_session')) return;
+
+    await supabaseClient.from('t98_logs').insert([{
+        f_user_id: user.id,
+        f_username: user.f_username,
+        f_action: 'Page View: ' + window.location.pathname,
+        f_timestamp: new Date().toISOString()
+    }]);
     
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: sorted.map(v => v.f17_visit_date),
-            datasets: [{
-                label: 'الكمية المتوقعة (طن)',
-                data: sorted.map(v => v.f12_monthly_qty),
-                borderColor: '#b08d57',
-                backgroundColor: 'rgba(176, 141, 87, 0.1)',
-                fill: true,
-                tension: 0.4,
-                pointRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: { 
-                y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-                x: { ticks: { color: '#fff' }, grid: { display: false } }
-            }
-        }
-    });
+    sessionStorage.setItem('logged_this_session', 'true');
 }
 
-// دالة تسجيل الخروج
 function logout() {
     localStorage.removeItem('msp_user');
     window.location.replace('login.html');
