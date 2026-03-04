@@ -1,186 +1,150 @@
-/* === MSP System - Core Global Engine [V3.1 - Mapped Version] === */
+/* ===========================================================
+   نظام MSP لتوثيق زيارات فريق المبيعات - المحرك العالمي V3.5
+   ===========================================================
+   المسؤوليات: الربط بـ Supabase، توحيد الثيم، حقن الواجهات، الأمان.
+*/
 
-const CONFIG = {
-    SB_URL: "https://iowfsncjhzysomybiipk.supabase.co",
-    SB_KEY: "sb_publishable_7LHRjeb5IV8XRQJcX-8Ung_lE_iIwsS",
-    SYSTEM_NAME: "MSP - نظام إدارة المبيعات",
-    COMPANY: "MSP | Modern Style Pack"
-};
+// 1. إعدادات الاتصال بـ Supabase (تأكد من مطابقة الروابط)
+const SB_URL = "https://tjntctaapsdynbywdfns.supabase.co";
+const SB_KEY = "sb_publishable_BJgdmxyFsCgzFDXh1Qn1CQ_cFRMsy2P";
+const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
-// 1. تهيئة Supabase
-const supabaseClient = supabase.createClient(CONFIG.SB_URL, CONFIG.SB_KEY);
-
-// 2. تشغيل المحرك عند تحميل أي صفحة
-document.addEventListener('DOMContentLoaded', async () => {
-    const isLoginPage = window.location.pathname.includes('login.html');
-    
-    // التحقق من الجلسة
-    const user = checkAuth(isLoginPage);
-
-    if (!isLoginPage && user) {
-        injectSharedUI(user);   // بناء الواجهة (Sidebar & Header)
-        initDigitalClock();     // تشغيل الساعة والنبضة
-        logUserActivity(user);  // تسجيل النشاط في t98_logs
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuth();       // التحقق من الدخول
+    injectSharedUI();  // حقن الثيم والواجهات
+    initDigitalClock(); // تشغيل الساعة
 });
 
-/**
- * حماية الجلسة (Auth Guard)
- */
-function checkAuth(isLoginPage) {
-    const userData = localStorage.getItem('msp_user');
-    const user = userData ? JSON.parse(userData) : null;
+// --- [ وظيفة 1: التحقق من الأمان ] ---
+function checkAuth() {
+    const user = localStorage.getItem('msp_user');
+    const isLoginPage = window.location.pathname.includes('login.html');
 
     if (!user && !isLoginPage) {
         window.location.replace('login.html');
-        return null;
-    }
-    if (user && isLoginPage) {
+    } else if (user && isLoginPage) {
         window.location.replace('dashboard.html');
-        return null;
     }
-    return user;
 }
 
-/**
- * بناء الواجهة المشتركة (Sidebar, Header, CSS)
- */
-function injectSharedUI(user) {
+// --- [ وظيفة 2: حقن الثيم والواجهات الموحدة ] ---
+function injectSharedUI() {
+    const user = JSON.parse(localStorage.getItem('msp_user')) || { f_full_name: "مستخدم" };
+    
+    // أ: حقن التنسيق الموحد (الثيم الفخم - Radial Gradient)
     const style = document.createElement('style');
     style.textContent = `
-        :root { --msp-green: #2fb45a; --msp-dark: #0a0a0a; --sidebar-w: 260px; --msp-bronze: #b08d57; }
-        body { margin: 0; background: var(--msp-dark); font-family: 'Segoe UI', sans-serif; color: white; overflow-x: hidden; }
-        
-        .msp-sidebar { position: fixed; right: 0; top: 0; width: var(--sidebar-w); height: 100vh; 
-                       background: rgba(15,15,15,0.95); backdrop-filter: blur(15px); border-left: 1px solid rgba(255,255,255,0.05);
-                       z-index: 1001; transition: 0.3s ease; display: flex; flex-direction: column; }
-        .msp-sidebar.closed { right: -260px; }
-        
-        .msp-header { position: fixed; top: 0; right: 0; left: 0; height: 65px; background: rgba(0,0,0,0.6);
-                      backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between;
-                      padding: 0 20px; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        
-        .main-content { margin-right: var(--sidebar-w); padding: 85px 25px 25px; transition: 0.3s; min-height: 100vh; box-sizing: border-box; }
-        body.sidebar-closed .main-content { margin-right: 0; }
+        :root { 
+            --msp-green: #2fb45a; 
+            --msp-bronze: #b08d57;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
 
-        .clock-box { display: flex; align-items: center; gap: 12px; font-family: 'Consolas', monospace; color: var(--msp-green); }
-        .pulse-led { width: 10px; height: 10px; border-radius: 50%; background: var(--msp-green); box-shadow: 0 0 10px var(--msp-green); animation: pulse-anim 1.5s infinite; }
-        @keyframes pulse-anim { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.8); } }
+        body { 
+            margin: 0; 
+            background: radial-gradient(circle at center, #1e272e 0%, #050505 100%) !important;
+            background-attachment: fixed;
+            color: white; font-family: 'Segoe UI', sans-serif; direction: rtl;
+            min-height: 100vh; overflow-x: hidden;
+        }
 
-        .nav-link { padding: 15px 25px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; color: #aaa; text-decoration: none; }
-        .nav-link:hover { background: rgba(47, 180, 90, 0.1); color: white; }
-        .nav-link.active { color: var(--msp-green); background: rgba(47, 180, 90, 0.05); border-right: 4px solid var(--msp-green); }
-        .menu-toggle { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 5px; }
+        /* الهيدر العلوي */
+        .msp-header {
+            position: fixed; top: 0; left: 0; right: 0; height: 70px;
+            background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 25px; z-index: 1000;
+        }
+
+        .header-logo { display: flex; align-items: center; gap: 15px; }
+        .header-logo img { width: 45px; border-radius: 8px; }
+
+        /* الساعة الرقمية والنبضة */
+        .pulse-box { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+        .pulse-dot { width: 10px; height: 10px; background: var(--msp-green); border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+
+        /* السايدبار المنزلق (Sliding Sidebar) */
+        .msp-sidebar {
+            position: fixed; top: 70px; right: -280px; width: 260px; height: calc(100vh - 70px);
+            background: rgba(15, 15, 15, 0.98); backdrop-filter: blur(20px);
+            border-left: 1px solid var(--glass-border); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 30px 20px; z-index: 999;
+        }
+
+        .msp-sidebar.active { right: 0; }
+        .sidebar-item {
+            display: block; padding: 15px; color: #ccc; text-decoration: none;
+            border-radius: 12px; margin-bottom: 10px; transition: 0.3s;
+        }
+        .sidebar-item:hover { background: var(--glass-bg); color: var(--msp-green); transform: translateX(-5px); }
+        .sidebar-item.active { background: var(--msp-green); color: white; }
+
+        /* زر القائمة */
+        .menu-toggle { cursor: pointer; font-size: 1.5rem; color: var(--msp-green); }
+
+        .main-content { padding-top: 100px; padding-right: 30px; padding-left: 30px; transition: 0.4s; }
     `;
     document.head.appendChild(style);
 
-    const sidebar = document.createElement('aside');
-    sidebar.id = 'sidebar';
-    sidebar.className = 'msp-sidebar';
-    sidebar.innerHTML = `
-        <div style="padding: 30px 20px; text-align: center;">
-            <img src="MSP_Logo.jpeg" style="width: 80px; border-radius: 15px; margin-bottom: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">
-            <div style="color: var(--msp-bronze); font-weight: bold; letter-spacing: 1px;">MSP SYSTEM</div>
-        </div>
-        <nav style="flex-grow: 1;">
-            <a href="dashboard.html" class="nav-link ${window.location.pathname.includes('dashboard')?'active':''}"><span>📊</span> لوحة التحكم</a>
-            <a href="visits.html" class="nav-link ${window.location.pathname.includes('visits')?'active':''}"><span>📝</span> إدارة الزيارات</a>
-            <a href="#" class="nav-link"><span>📁</span> التقارير الذكية</a>
-            <a href="#" class="nav-link"><span>⚙️</span> الإعدادات</a>
-        </nav>
-        <div class="nav-link" style="color: #ff4d4d; border-top: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px;" onclick="logout()">
-            <span>🚪</span> تسجيل الخروج
-        </div>
-    `;
-    document.body.appendChild(sidebar);
+    // ب: حقن كود HTML (Header & Sidebar)
+    const headerHTML = `
+        <header class="msp-header">
+            <div class="header-logo">
+                <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
+                <img src="MSP_Logo.jpeg" alt="Logo">
+                <span style="font-weight:bold; color:var(--msp-bronze)">MSP Sales</span>
+            </div>
+            <div class="pulse-box">
+                <div id="digitalClock">00:00:00</div>
+                <div class="pulse-dot"></div>
+                <span style="font-size:0.8rem; opacity:0.7">${user.f_full_name}</span>
+            </div>
+        </header>
 
-    const header = document.createElement('header');
-    header.className = 'msp-header';
-    header.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-            <span style="font-weight: bold; color: var(--msp-bronze); display: none; @media(min-width:768px){display:block;}">${CONFIG.SYSTEM_NAME}</span>
-        </div>
-        <div class="clock-box">
-            <div id="connPulse" class="pulse-led"></div>
-            <span id="digitalClock" style="font-size: 1.3rem;">00:00:00</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <div style="text-align: left;">
-                <div style="font-size: 0.85rem; font-weight: bold;">${user.f_full_name}</div>
-                <div style="font-size: 0.7rem; color: #888; text-align: right;">متصل الآن</div>
-            </div>
-            <div style="width: 35px; height: 35px; background: var(--msp-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                ${user.f_username.charAt(0).toUpperCase()}
-            </div>
-        </div>
+        <aside class="msp-sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-item ${window.location.pathname.includes('dashboard') ? 'active' : ''}">📊 لوحة التحكم</a>
+            <a href="visits.html" class="sidebar-item ${window.location.pathname.includes('visits') ? 'active' : ''}">📝 توثيق الزيارات</a>
+            <a href="#" onclick="logout()" class="sidebar-item" style="color:#e74c3c; margin-top:50px">🚪 تسجيل الخروج</a>
+        </aside>
     `;
-    document.body.prepend(header);
+    document.body.insertAdjacentHTML('afterbegin', headerHTML);
 }
 
-/**
- * تشغيل الساعة الرقمية ومراقبة الاتصال
- */
+// --- [ وظائف التحكم بالواجهة ] ---
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
+}
+
 function initDigitalClock() {
+    const clockEl = document.getElementById('digitalClock');
+    if (!clockEl) return;
     setInterval(() => {
-        const el = document.getElementById('digitalClock');
-        if (el) el.textContent = new Date().toLocaleTimeString('en-GB');
+        const now = new Date();
+        clockEl.textContent = now.toLocaleTimeString('ar-EG', { hour12: false });
     }, 1000);
-    
-    // فحص الاتصال: تم تعديل الاستعلام ليناسب حقل f00_record_no لجدول t02_lists
-    setInterval(async () => {
-        const pulse = document.getElementById('connPulse');
-        if (!pulse) return;
-        try {
-            const { error } = await supabaseClient.from('t02_lists').select('f00_record_no').limit(1);
-            pulse.style.background = error ? "#ff4d4d" : "#2fb45a";
-            pulse.style.boxShadow = error ? "0 0 10px #ff4d4d" : "0 0 10px #2fb45a";
-        } catch (e) { 
-            pulse.style.background = "#ff4d4d"; 
-        }
-    }, 30000);
 }
-
-/**
- * تسجيل نشاط المستخدم في جدول t98_logs
- */
-async function logUserActivity(user) {
-    if (sessionStorage.getItem('msp_session_logged')) return;
-
-    const logData = {
-        f_user_id: user.id || user.f_record_no,
-        f_username: user.f_username,
-        f_full_name: user.f_full_name,
-        f_action: "دخول للنظام",
-        f_page_url: window.location.pathname,
-        f_user_agent: navigator.userAgent
-    };
-
-    try {
-        await supabaseClient.from('t98_logs').insert([logData]);
-        sessionStorage.setItem('msp_session_logged', 'true');
-    } catch (err) { console.error("Session Log Error:", err); }
-}
-
-/**
- * وظائف التحكم العامة
- */
-window.toggleSidebar = () => {
-    const sb = document.getElementById('sidebar');
-    document.body.classList.toggle('sidebar-closed');
-    sb.classList.toggle('closed');
-};
 
 function logout() {
     localStorage.removeItem('msp_user');
-    sessionStorage.clear();
     window.location.replace('login.html');
 }
 
-function showNotification(msg, type = 'success') {
-    if (typeof showMspModal === 'function') {
-        showMspModal(type === 'success'?'تمت العملية':'خطأ', msg, type);
+// --- [ وظيفة المودال الموحد ] ---
+function showNotification(title, msg, type = 'success') {
+    const modal = document.getElementById('mspModal');
+    if (modal) {
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalText').textContent = msg;
+        document.getElementById('modalIcon').textContent = type === 'success' ? '✅' : '⚠️';
+        modal.style.display = 'flex';
     } else {
         alert(msg);
     }
+}
+
+function closeMspModal() {
+    document.getElementById('mspModal').style.display = 'none';
 }
