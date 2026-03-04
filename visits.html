@@ -1,33 +1,33 @@
 <div class="msp-card">
-    <h2 style="color:var(--msp-green); margin-top:0;">📝 توثيق زيارة ميدانية</h2>
+    <h3 style="color:var(--msp-green); margin-bottom:25px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+        إضافة زيارة جديدة | New Sales Visit
+    </h3>
     <form id="visitForm">
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-            <div><label>المحافظة (f01)</label><select id="f01_governorate" required></select></div>
-            <div><label>المنطقة (f02)</label><select id="f02_area" required></select></div>
-            <div><label>اسم المنشأة (f03)</label><input type="text" id="f03_facility_name" required></div>
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:20px;">
+            <div><label>المحافظة | Governorate (f01)</label><select id="f01_governorate" required></select></div>
+            <div><label>المنطقة | Area (f02)</label><select id="f02_area" required></select></div>
+            <div><label>اسم المنشأة | Facility Name (f03)</label><input type="text" id="f03_facility_name" required></div>
             
-            <div><label>نوع المنشأة (f04)</label><input type="text" id="f04_facility_type"></div>
-            <div><label>القطاع الصناعي (f05)</label><input type="text" id="f05_industrial_sector"></div>
-            <div><label>العنوان بالتفصيل (f06)</label><input type="text" id="f06_address"></div>
+            <div><label>نوع المنشأة | Facility Type (f04)</label><input type="text" id="f04_facility_type"></div>
+            <div><label>القطاع | Sector (f05)</label><input type="text" id="f05_industrial_sector"></div>
+            <div><label>العنوان | Address (f06)</label><input type="text" id="f06_address"></div>
 
-            <div><label>الشخص المسؤول (f07)</label><input type="text" id="f07_contact_person"></div>
-            <div><label>المسمى الوظيفي (f08)</label><input type="text" id="f08_job_title"></div>
-            <div><label>رقم الهاتف (f09)</label><input type="tel" id="f09_phone"></div>
+            <div><label>المسؤول | Contact Person (f07)</label><input type="text" id="f07_contact_person"></div>
+            <div><label>المسمى الوظيفي | Job Title (f08)</label><input type="text" id="f08_job_title"></div>
+            <div><label>الهاتف | Phone (f09)</label><input type="tel" id="f09_phone"></div>
 
-            <div><label>البريد الإلكتروني (f10)</label><input type="email" id="f10_email"></div>
-            <div><label>يستخدم كرتون؟ (f11)</label><select id="f11_uses_carton"><option value="نعم">نعم</option><option value="لا">لا</option></select></div>
-            <div><label>الكمية الشهرية (f12)</label><input type="number" id="f12_monthly_qty"></div>
+            <div><label>البريد | Email (f10)</label><input type="email" id="f10_email"></div>
+            <div><label>استهلاك كرتون | Uses Carton (f11)</label><select id="f11_uses_carton"><option value="نعم">نعم | Yes</option><option value="لا">لا | No</option></select></div>
+            <div><label>الكمية المتوقعة | Est. Qty (f12)</label><input type="number" id="f12_monthly_qty"></div>
 
-            <div><label>مستوى الاهتمام (f13)</label><input type="text" id="f13_interest_level"></div>
-            <div><label>فرصة المبيعات (f14)</label><select id="f14_sales_opportunity"><option value="عادية">عادية</option><option value="فورية">فورية</option></select></div>
-            <div><label>تاريخ الزيارة (f17)</label><input type="date" id="f17_visit_date" required></div>
+            <div><label>مستوى الاهتمام | Interest (f13)</label><input type="text" id="f13_interest_level"></div>
+            <div><label>الفرصة | Opportunity (f14)</label><select id="f14_sales_opportunity"><option value="عادية">عادية | Regular</option><option value="فورية">فورية | Hot</option></select></div>
+            <div><label>التاريخ | Date (f17)</label><input type="date" id="f17_visit_date" required></div>
 
-            <div><label>تحتاج متابعة؟ (f18)</label><select id="f18_follow_up"><option value="نعم">نعم</option><option value="لا">لا</option></select></div>
-            <div><label>تقييم الزيارة 1-10 (f19)</label><input type="number" id="f19_rating" min="1" max="10"></div>
-            <div style="grid-column: span 3;"><label>ملاحظات إضافية (f15)</label><textarea id="f15_notes" rows="2"></textarea></div>
+            <div style="grid-column: span 3;"><label>ملاحظات | Notes (f15)</label><textarea id="f15_notes" rows="3" style="width:100%; background:var(--glass); color:white; border:1px solid var(--border); border-radius:10px;"></textarea></div>
         </div>
-        <div style="margin-top:20px; text-align:left;">
-            <button type="submit" style="background:var(--msp-green); color:white; border:none; padding:15px 40px; border-radius:8px; cursor:pointer; font-weight:bold;">حفظ البيانات في السحابة 💾</button>
+        <div style="text-align:left; margin-top:30px;">
+            <button type="submit" class="btn-luxury">حفظ التوثيق | Save Document 💾</button>
         </div>
     </form>
 </div>
