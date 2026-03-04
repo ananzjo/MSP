@@ -1,135 +1,63 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>توثيق زيارة | نظام MSP</title>
+    <meta charset="UTF-8"><title>توثيق زيارة | MSP</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="global-config.js"></script>
-    <link rel="stylesheet" href="visits.css">
+    <style>
+        .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--msp-bronze); font-size: 0.9rem; }
+        .msp-input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        .msp-input:focus { border-color: var(--msp-green); outline: none; }
+        .section-tag { grid-column: 1/-1; background: #f0f4f1; padding: 10px; border-radius: 5px; color: var(--msp-green); font-weight: bold; margin-top: 10px; }
+        .msp-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .msp-table th { background: #f8f9fa; padding: 12px; text-align: right; border-bottom: 2px solid var(--msp-green); }
+        .msp-table td { padding: 12px; border-bottom: 1px solid #eee; }
+    </style>
 </head>
 <body>
-    <main class="main-content">
-        <div class="page-header">
-            <h2 class="page-title">📝 نظام MSP لتوثيق زيارات فريق المبيعات</h2>
-            <p class="page-subtitle">إدخال بيانات المنشأة والفرص البيعية الجديدة</p>
-        </div>
-
+    <div class="main-content">
         <div class="msp-card">
+            <h2 style="color:var(--msp-green); margin-top:0;">📝 توثيق زيارة ميدانية جديدة</h2>
             <form id="visitForm">
                 <div class="form-grid">
-                    <div class="section-title full-width">📍 بيانات الموقع والمنشأة</div>
-                    <div class="form-group">
-                        <label>المحافظة</label>
-                        <select id="f01_governorate" class="msp-input" required></select>
+                    <div class="section-tag">📍 الموقع والمنشأة</div>
+                    <div class="form-group"><label>المحافظة</label><select id="f01_governorate" class="msp-input" required></select></div>
+                    <div class="form-group"><label>المنطقة</label><select id="f02_area" class="msp-input" required></select></div>
+                    <div class="form-group"><label>اسم المنشأة</label><input type="text" id="f03_facility_name" class="msp-input" required></div>
+                    
+                    <div class="section-tag">📞 التواصل والاحتياج</div>
+                    <div class="form-group"><label>المسؤول</label><input type="text" id="f07_contact_person" class="msp-input"></div>
+                    <div class="form-group"><label>الهاتف</label><input type="tel" id="f09_phone" class="msp-input"></div>
+                    <div class="form-group"><label>استهلاك الكرتون</label>
+                        <select id="f11_uses_carton" class="msp-input"><option value="نعم">نعم</option><option value="لا">لا</option></select>
                     </div>
-                    <div class="form-group">
-                        <label>المنطقة</label>
-                        <select id="f02_area" class="msp-input" required></select>
-                    </div>
-                    <div class="form-group">
-                        <label>اسم المنشأة/العميل</label>
-                        <input type="text" id="f03_facility_name" class="msp-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label>نوع المنشأة</label>
-                        <input type="text" id="f04_facility_type" class="msp-input">
-                    </div>
-                    <div class="form-group">
-                        <label>القطاع الصناعي</label>
-                        <input type="text" id="f05_industrial_sector" class="msp-input">
-                    </div>
-                    <div class="form-group">
-                        <label>العنوان التفصيلي</label>
-                        <input type="text" id="f06_address" class="msp-input">
-                    </div>
-
-                    <div class="section-title full-width">📞 بيانات الشخص المسؤول</div>
-                    <div class="form-group">
-                        <label>الشخص المسؤول</label>
-                        <input type="text" id="f07_contact_person" class="msp-input">
-                    </div>
-                    <div class="form-group">
-                        <label>المسمى الوظيفي</label>
-                        <input type="text" id="f08_job_title" class="msp-input">
-                    </div>
-                    <div class="form-group">
-                        <label>رقم الهاتف</label>
-                        <input type="tel" id="f09_phone" class="msp-input">
-                    </div>
-                    <div class="form-group">
-                        <label>البريد الإلكتروني</label>
-                        <input type="email" id="f10_email" class="msp-input">
-                    </div>
-
-                    <div class="section-title full-width">📦 تفاصيل الاحتياج والفرصة</div>
-                    <div class="form-group">
-                        <label>هل يستخدم الكرتون؟</label>
-                        <select id="f11_uses_carton" class="msp-input">
-                            <option value="نعم">نعم</option>
-                            <option value="لا">لا</option>
+                    
+                    <div class="section-tag">⚡ تفاصيل الفرصة</div>
+                    <div class="form-group"><label>فرصة المبيعات (f14)</label>
+                        <select id="f14_sales_opportunity" class="msp-input">
+                            <option value="عادية">عادية</option><option value="فورية">🔥 فورية</option><option value="مستبعدة">مستبعدة</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>الكمية الشهرية التقديرية</label>
-                        <input type="number" id="f12_monthly_qty" class="msp-input">
-                    </div>
-                    <div class="form-group">
-                        <label>مستوى الاهتمام</label>
-                        <select id="f13_interest_level" class="msp-input">
-                            <option value="عالي">🔥 عالي</option>
-                            <option value="متوسط">⚖️ متوسط</option>
-                            <option value="منخفض">❄️ منخفض</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>تاريخ الزيارة</label>
-                        <input type="date" id="f17_visit_date" class="msp-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label>تقييم الزيارة (1-10)</label>
-                        <input type="number" id="f19_rating" min="1" max="10" class="msp-input">
-                    </div>
-                    <div class="form-group">
-                        <label>تحتاج متابعة؟</label>
-                        <select id="f18_follow_up" class="msp-input">
-                            <option value="نعم">نعم</option>
-                            <option value="لا">لا</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label>ملاحظات إضافية</label>
-                        <textarea id="f15_notes" class="msp-input" rows="2"></textarea>
-                    </div>
+                    <div class="form-group"><label>الكمية المتوقعة (كغم)</label><input type="number" id="f12_monthly_qty" class="msp-input"></div>
+                    <div class="form-group"><label>تقييم الزيارة (1-10)</label><input type="number" id="f19_rating" min="1" max="10" class="msp-input" value="5"></div>
                 </div>
-
-                <div class="form-footer">
-                    <button type="submit" class="btn-primary">حفظ وتوثيق الزيارة 💾</button>
+                <div style="margin-top:20px; text-align:left;">
+                    <button type="submit" class="btn-primary">حفظ وتوثيق البيانات 💾</button>
                 </div>
             </form>
         </div>
 
-        <div class="msp-card table-section">
-            <h3 style="color: var(--msp-bronze); margin-bottom: 15px;">📊 سجل الزيارات الأخيرة</h3>
-            <div class="table-container">
-                <table class="msp-table">
-                    <thead>
-                        <tr>
-                            <th>التاريخ</th>
-                            <th>المنشأة</th>
-                            <th>المحافظة</th>
-                            <th>المسؤول</th>
-                            <th>التقييم</th>
-                            <th>الإجراء</th>
-                        </tr>
-                    </thead>
-                    <tbody id="visitsTableBody"></tbody>
-                </table>
-            </div>
+        <div class="msp-card">
+            <h3 style="color:var(--msp-bronze);">📊 آخر 10 زيارات موثقة</h3>
+            <table class="msp-table">
+                <thead>
+                    <tr><th>التاريخ</th><th>المنشأة</th><th>المنطقة</th><th>المندوب</th><th>الفرصة</th></tr>
+                </thead>
+                <tbody id="visitsTableBody"></tbody>
+            </table>
         </div>
-    </main>
-
+    </div>
     <script src="visits.js"></script>
 </body>
 </html>
