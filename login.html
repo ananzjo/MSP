@@ -1,91 +1,30 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>Login | MSP System</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="global-config.js"></script>
-    <style>
-        body {
-            background: radial-gradient(circle at center, #1e272e 0%, #050505 100%);
-            height: 100vh; display: flex; align-items: center; justify-content: center;
-            margin: 0; font-family: 'Segoe UI', sans-serif; color: white;
-            overflow: hidden;
-        }
-        .login-card {
-            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 25px;
-            padding: 40px; width: 380px; text-align: center;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-        }
-        .login-card img { width: 140px; margin-bottom: 20px; border-radius: 15px; }
-        .login-card h2 { color: var(--msp-green); margin-bottom: 5px; }
-        .login-card p { color: #888; font-size: 0.9rem; margin-bottom: 30px; }
-        
-        .input-group { text-align: right; margin-bottom: 20px; }
-        .input-group label { display: block; margin-bottom: 8px; color: var(--msp-bronze); font-size: 0.85rem; }
-        
-        input {
-            width: 100%; background: rgba(255,255,255,0.05); color: white;
-            border: 1px solid rgba(255,255,255,0.1); padding: 12px;
-            border-radius: 10px; outline: none; transition: 0.3s; box-sizing: border-box;
-        }
-        input:focus { border-color: var(--msp-green); background: rgba(255,255,255,0.1); }
-        
-        .btn-login {
-            width: 100%; background: linear-gradient(45deg, var(--msp-green), #26a653);
-            color: white; border: none; padding: 14px; border-radius: 10px;
-            font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s;
-        }
-        .btn-login:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(47, 180, 90, 0.3); }
-    </style>
-</head>
-<body>
+/* تحديث كود الدخول في login.html */
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const userVal = document.getElementById('f01_username').value.trim();
+    const passVal = document.getElementById('f02_password').value.trim();
 
-    <div class="login-card">
-        <img src="MSP_Logo.jpeg" alt="MSP Logo">
-        <h2>تسجيل الدخول</h2>
-        <p>نظام إدارة مبيعات Modern Style Pack</p>
-        
-        <form id="loginForm">
-            <div class="input-group">
-                <label>اسم المستخدم | Username (f01)</label>
-                <input type="text" id="f01_username" required placeholder="أدخل اسم المستخدم">
-            </div>
-            <div class="input-group">
-                <label>كلمة المرور | Password (f02)</label>
-                <input type="password" id="f02_password" required placeholder="••••••••">
-            </div>
-            <button type="submit" class="btn-login">دخول | Login 🔑</button>
-        </form>
-    </div>
+    try {
+        // نستخدم .select() مع فلتر مباشر لتجنب تعقيدات الـ API
+        const { data, error, status } = await supabaseClient
+            .from('t99_users')
+            .select('*')
+            .eq('f01_username', userVal)
+            .eq('f02_password', passVal);
 
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const userVal = document.getElementById('f01_username').value;
-            const passVal = document.getElementById('f02_password').value;
+        if (error) {
+            console.error("Supabase Error:", error);
+            showNotification("خطأ في الخادم", `رمز الخطأ: ${status} - ${error.message}`, "error");
+            return;
+        }
 
-            try {
-                // جلب المستخدم من جدول t99_users
-                const { data, error } = await supabaseClient
-                    .from('t99_users')
-                    .select('*')
-                    .eq('f01_username', userVal)
-                    .eq('f02_password', passVal)
-                    .single();
-
-                if (error || !data) {
-                    showNotification("خطأ في الدخول", "اسم المستخدم أو كلمة المرور غير صحيحة.", "error");
-                } else {
-                    // تخزين بيانات المستخدم والانتقال للداشبورد
-                    localStorage.setItem('msp_user', JSON.stringify(data));
-                    window.location.replace('dashboard.html');
-                }
-            } catch (err) {
-                showNotification("عطل فني", "تعذر الاتصال بقاعدة البيانات.", "error");
-            }
-        });
-    </script>
-</body>
-</html>
+        if (data && data.length > 0) {
+            localStorage.setItem('msp_user', JSON.stringify(data[0]));
+            window.location.replace('dashboard.html');
+        } else {
+            showNotification("دخول غير مصرح", "تأكد من اسم المستخدم وكلمة المرور.", "error");
+        }
+    } catch (err) {
+        showNotification("عطل فني", "فشل الاتصال بقاعدة البيانات.", "error");
+    }
+});
