@@ -1,170 +1,167 @@
+/* === START OF FILE === */
 /**
- * File: global-config.js | ملف: المحرك المركزي للنظام
- * Version: v2.1.8 | الإصدار: 2.1.8
- * Update: Finalized Sidebar Links (Visits, Dashboard, Login/Logout)
- * Policy: 75% Container, Full-width Header, Smart Toggle, RTL Icons
+ * File: global-config.js | Version: v2.3.5
+ * Function: Central Engine with Correct Supabase Credentials
+ * Project: MSP Smart System
  */
 
-// 1. إعدادات سوبابيز المعتمدة | Supabase Credentials
+// المسارات الصحيحة التي تم التحقق منها
 const SUPABASE_URL = "https://iowfsncjhzysomybiipk.supabase.co";
 const SUPABASE_KEY = "sb_publishable_7LHRjeb5IV8XRQJcX-8Ung_lE_iIwsS";
 
-// تهيئة الاتصال | Initialize Supabase
+// تهيئة الاتصال الموحد
 // @ts-ignore
 window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/**
- * تشغيل المحرك المركزي عند تحميل الصفحة
- */
 function initGlobalEngine() {
-    console.log("MSP System: Core Engine v2.1.8 Started...");
+    console.log("MSP: Initializing Central Engine...");
     injectGlobalStyles(); 
     injectHeader();
     injectSidebar();
     startDigitalClock();
+
+    // إرسال إشارة الجاهزية لملف visits.js لتبدأ القوائم بالتحميل
+    setTimeout(() => {
+        window.dispatchEvent(new Event('msp-core-ready'));
+        console.log("MSP: Core Signal Sent.");
+    }, 200);
 }
 
-/**
- * حقن التنسيقات العالمية (المحاذاة، الاستجابة، والساعة الرقمية)
- */
 function injectGlobalStyles() {
     const style = document.createElement('style');
     style.innerHTML = `
         @import url('https://fonts.cdnfonts.com/css/digital-7-mono');
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; }
         
-        /* الهيدر الكامل | Full Width Header */
-        .system-header {
-            position: fixed; top: 0; left: 0; right: 0;
-            height: 70px; background: #111; color: white;
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 5%; border-bottom: 3px solid #27ae60;
-            z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        .seven-segment-clock {
-            font-family: 'Digital-7 Mono', sans-serif;
-            font-size: clamp(1.5rem, 5vw, 2.4rem); color: #00ff00;
-            text-shadow: 0 0 10px #00ff00; letter-spacing: 2px;
-        }
-
-        /* السايدبار - يبدأ تحت الهيدر | Sidebar below Header */
-        .sliding-sidebar {
-            position: fixed; top: 73px; right: -320px; width: 320px;
-            height: calc(100vh - 73px); background: #1a1a1a;
-            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1100;
-            border-left: 3px solid #27ae60; direction: rtl; text-align: right;
+        /* ضبط المساحة للمحتوى تحت الهيدر */
+        .page-container { 
+            width: 92% !important; 
+            max-width: 1400px; 
+            margin: 100px auto 20px !important; 
+            direction: rtl !important; 
+            position: relative;
         }
         
-        .sliding-sidebar.active { right: 0; }
-
-        /* زر القائمة - يختفي عند الفتح | Smart Toggle Button */
-        .btn-sidebar-toggle {
-            position: fixed; top: 85px; right: 20px;
-            z-index: 1050; background: #27ae60; color: white;
-            border: none; width: 45px; height: 45px; border-radius: 8px;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: 0.3s; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        /* تنسيق الهيدر الثابت */
+        header { 
+            display:flex; 
+            justify-content:space-between; 
+            align-items:center; 
+            background:#1a1a1a; 
+            color:white; 
+            padding:0 25px; 
+            position:fixed; 
+            top:0; 
+            width:100%; 
+            z-index:11000; 
+            border-bottom:2px solid #27ae60; 
+            height:62px; 
+            box-sizing: border-box; 
         }
-        .btn-sidebar-toggle.hidden { opacity: 0; pointer-events: none; transform: scale(0.8); }
-
-        /* حاوية الصفحة - 75% موسطة | Responsive Container */
-        .page-container {
-            width: 90%; max-width: 1400px;
-            margin: 140px auto 40px; transition: 0.3s;
+        
+        /* تنسيق القائمة الجانبية المنسدلة */
+        #sidebar { 
+            position: fixed; 
+            top: 62px; 
+            right: -300px; 
+            width: 280px; 
+            height: calc(100% - 62px); 
+            background: white; 
+            z-index: 10000; 
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            border-left: 2px solid #27ae60; 
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1); 
         }
-
-        /* تحسين الاستجابة والتباعد | Responsiveness & Spacing */
-        @media (min-width: 992px) {
-            .page-container { width: 75% !important; }
-            .form-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 30px !important; }
+        
+        #sidebar.active { right: 0; }
+        
+        /* زر القائمة الموضع أسفل الهيدر */
+        .btn-sidebar-toggle { 
+            position: fixed !important; 
+            top: 75px !important; 
+            right: 20px !important; 
+            z-index: 10001 !important; 
+            background: #1a1a1a; 
+            color: #27ae60; 
+            border: 1px solid #27ae60; 
+            padding: 10px 15px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-
-        @media (max-width: 991px) {
-            .form-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
-            .system-header { padding: 0 15px; }
-            .system-header span { font-size: 0.9rem; }
+        
+        /* إخفاء الزر عند فتح القائمة */
+        .btn-sidebar-toggle.hidden { display: none !important; }
+        
+        /* الساعة الرقمية */
+        #digital-clock { 
+            font-family: 'Digital-7 Mono', sans-serif; 
+            color: #27ae60; 
+            font-size: 1.8rem; 
+            background: #1a1a1a; 
+            padding: 2px 12px; 
+            border-radius: 8px; 
         }
+        
+        .msp-brand { font-weight: bold; letter-spacing: 1px; }
+        .msp-brand span { color: #27ae60; }
     `;
     document.head.appendChild(style);
 }
 
-/**
- * حقن الهيدر بالمسمى الرسمي
- */
 function injectHeader() {
     const headerHTML = `
-        <header class="system-header">
-            <div class="header-left">
-                <span style="font-weight: 800; color: #27ae60;">نظام توثيق الزيارات الذكي (MSP)</span>
-            </div>
-            <div class="header-right">
-                <div id="digital-clock" class="seven-segment-clock">00:00:00</div>
-            </div>
-        </header>
-    `;
+        <header>
+            <div class="msp-brand"><span>MSP</span> Smart System</div>
+            <div id="digital-clock">00:00:00</div>
+            <div style="font-size:0.8rem; color: #aaa;">Eng. Anan Zitawi</div>
+        </header>`;
     document.body.insertAdjacentHTML('afterbegin', headerHTML);
 }
 
-/**
- * حقن السايدبار بالروابط المعتمدة فقط
- */
 function injectSidebar() {
     const sidebarHTML = `
-        <nav id="sidebar" class="sliding-sidebar">
-            <div style="padding: 25px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center;">
-                <span style="color: #27ae60; font-weight: bold; font-size: 1.1rem;">القائمة | MENU</span>
-                <button onclick="toggleSidebar()" style="background:none; border:none; color:#fff; font-size:1.8rem; cursor:pointer; line-height:1;">&times;</button>
+        <nav id="sidebar">
+            <div style="padding:20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; background:#f9f9f9;">
+                <span style="font-weight:bold; color:#27ae60;">القائمة الرئيسية</span>
+                <button onclick="toggleSidebar()" style="color:#e74c3c; border:none; background:none; cursor:pointer; font-size:1.8rem; line-height:1;">&times;</button>
             </div>
-            
-            <ul style="list-style: none; padding: 20px 0; margin: 0;">
-                ${[
-                    { nameAr: 'الزيارات', nameEn: 'Visits', icon: 'fa-route', link: 'visits.html' },
-                    { nameAr: 'لوحة البيانات', nameEn: 'Dashboard', icon: 'fa-chart-pie', link: 'dashboard.html' },
-                    { nameAr: 'تسجيل دخول/خروج', nameEn: 'Login/Logout', icon: 'fa-sign-in-alt', link: 'login.html' }
-                ].map(item => `
-                    <li style="margin-bottom: 5px;">
-                        <a href="${item.link}" style="color: #fff; text-decoration: none; display: flex; align-items: center; padding: 15px 25px; transition: 0.3s; gap: 15px; border-right: 4px solid transparent;" 
-                           onmouseover="this.style.background='#222'; this.style.borderRightColor='#27ae60'" 
-                           onmouseout="this.style.background='transparent'; this.style.borderRightColor='transparent'">
-                            
-                            <i class="fas ${item.icon}" style="width: 25px; color: #27ae60; font-size: 1.2rem; text-align: center;"></i>
-                            <span style="font-size: 1rem; display: flex; gap: 8px; align-items: center;">
-                                <span>${item.nameAr}</span>
-                                <span style="color: #666; font-size: 0.85rem;">| ${item.nameEn}</span>
-                            </span>
-                        </a>
-                    </li>
-                `).join('')}
+            <ul style="list-style:none; padding:10px; margin:0;">
+                <li style="margin-bottom:10px;">
+                    <a href="visits.html" style="text-decoration:none; color:#333; display:block; padding:12px; border-radius:6px; transition:0.2s;">
+                        <i class="fas fa-file-signature" style="margin-left:10px; color:#27ae60;"></i> توثيق الزيارات
+                    </a>
+                </li>
             </ul>
         </nav>
-        <button id="main-menu-btn" class="btn-sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-    `;
+        <button id="main-menu-btn" class="btn-sidebar-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i> القائمة
+        </button>`;
     document.body.insertAdjacentHTML('beforeend', sidebarHTML);
 }
 
-/**
- * وظيفة فتح وإغلاق السايدبار وتبديل زر القائمة
- */
 function toggleSidebar() {
-    const sb = document.getElementById('sidebar');
+    const sidebar = document.getElementById('sidebar');
     const btn = document.getElementById('main-menu-btn');
-    if(sb && btn) {
-        sb.classList.toggle('active');
+    if (sidebar && btn) {
+        sidebar.classList.toggle('active');
         btn.classList.toggle('hidden');
     }
 }
 
-/**
- * تشغيل الساعة الرقمية بنظام 24 ساعة
- */
 function startDigitalClock() {
-    const clockElement = document.getElementById('digital-clock');
-    if (!clockElement) return;
-    setInterval(() => {
-        const now = new Date();
-        clockElement.innerText = now.toLocaleTimeString('en-GB', { hour12: false });
-    }, 1000);
+    const updateClock = () => {
+        const clock = document.getElementById('digital-clock');
+        if (clock) {
+            const now = new Date();
+            clock.innerText = now.toLocaleTimeString('en-GB');
+        }
+    };
+    updateClock();
+    setInterval(updateClock, 1000);
 }
 
-// تشغيل المحرك تلقائياً
-window.onload = initGlobalEngine;
+/* === END OF FILE === */
