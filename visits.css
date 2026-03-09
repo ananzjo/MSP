@@ -9,11 +9,14 @@
 }
 
 body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--msp-bg); direction: rtl; margin: 0; padding: 0; }
-.msp-main-content { padding: 20px 40px; margin-right: 70px; transition: 0.3s; }
-
+.msp-main-content {
+    /* زد القيمة الأولى من 20px إلى 90px أو 100px */
+    padding: 90px 40px 20px 40px; 
+    margin-right: 70px;
+}
 /* Headers & Groups */
 .msp-header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 25px; border-radius: 15px; border-right: 6px solid var(--msp-green); box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
-.form-section { background: white; border-radius: 15px; margin-bottom: 30px; border: 1.5px solid var(--msp-border); overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+.form-section { background: white; border-radius: 25px; margin-bottom: 30px; border: 1.5px solid var(--msp-border); overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
 .section-header { background: var(--msp-green); padding: 15px 20px; color: white; font-weight: bold; display: flex; align-items: center; gap: 10px; font-size: 1.1rem; }
 
 /* Grid & Inputs */
@@ -99,4 +102,5 @@ tbody tr:hover { background: #f0fdf4; }
 .full-width { grid-column: 1 / -1; }
 textarea.msp-input { resize: vertical; font-family: inherit; }
 /* ... (باقي التنسيقات التي أرسلتها سابقاً للفلاتر والعداد) ... */
+
 /* === END OF FILE === */
