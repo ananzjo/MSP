@@ -16,7 +16,35 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--msp-bg); d
 }
 /* Headers & Groups */
 .msp-header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 25px; border-radius: 15px; border-right: 6px solid var(--msp-green); box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
-.form-section { background: white; border-radius: 25px; margin-bottom: 30px; border: 1.5px solid var(--msp-border); overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+
+* === START OF CODE === */
+.form-section {
+    background: white;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    border: 1.5px solid var(--msp-border);
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+
+    /* تعديل الحجم المطلوب */
+    width: 65% !important;   /* تصغير العرض بنسبة 35% */
+    margin-right: auto;      /* التوسيط في الصفحة */
+    margin-left: auto;       /* التوسيط في الصفحة */
+    
+    /* تصغير العناصر الداخلية لتتناسب مع الحجم الجديد */
+    transform: scale(0.95);  /* تصغير اختياري بسيط للعناصر الداخلية */
+    transform-origin: top;
+}
+
+/* تعديل عرض الشبكة لضمان عدم تداخل الحقول */
+.msp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+    gap: 15px !important;
+    padding: 20px !important;
+}
+/* === END OF CODE === */
+
 .section-header { background: var(--msp-green); padding: 15px 20px; color: white; font-weight: bold; display: flex; align-items: center; gap: 10px; font-size: 1.1rem; }
 
 /* Grid & Inputs */
@@ -104,3 +132,4 @@ textarea.msp-input { resize: vertical; font-family: inherit; }
 /* ... (باقي التنسيقات التي أرسلتها سابقاً للفلاتر والعداد) ... */
 
 /* === END OF FILE === */
+
