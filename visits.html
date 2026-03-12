@@ -1,5 +1,11 @@
-/* === START OF FILE === */
-/* File: visits.html | Version: v19.0.0 | Full Fields Integration */
+<!-- === START OF FILE === -->
+<!--
+  Name: visits.html
+  Version: v20.0.0
+  Function: Full User Interface for capturing and displaying visit records.
+  Components: Form, Data Grid, Modals.
+  I/O: User Input via Forms / Output via Data Grid and Supabase.
+-->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -11,46 +17,57 @@
 </head>
 <body>
     <div class="msp-main-content">
+        
+        <!-- صفحة موحدة العرض (Unified Page Container) -->
+        <div class="msp-container">
+            
+            <!-- Header (عنوان فرعي خاص بالصفحة) -->
+            <div class="msp-header">
+            <div class="header-title">
+                <h2><i class="fas fa-clipboard-list"></i> نظام توثيق الزيارات (Visits System)</h2>
+            </div>
+        </div>
+
         <form id="visitForm">
             <input type="hidden" id="edit_id">
             
             <div class="form-section">
                 <div class="section-header"><i class="fas fa-industry"></i> بيانات المنشأة</div>
                 <div class="msp-grid">
-                    <div class="msp-item"><label>المحافظة</label><select id="f01_governorate" class="msp-input" required></select></div>
-                    <div class="msp-item"><label>المنطقة</label><select id="f02_area" class="msp-input" required></select></div>
-                    <div class="msp-item"><label>اسم المنشأة</label><input type="text" id="f03_facility_name" class="msp-input" required></div>
-                    <div class="msp-item"><label>نوع المنشأة</label><select id="f04_facility_type" class="msp-input"></select></div>
-                    <div class="msp-item"><label>القطاع الصناعي</label><select id="f05_industrial_sector" class="msp-input"></select></div>
-                    <div class="msp-item"><label>العنوان التفصيلي</label><input type="text" id="f06_address" class="msp-input"></div>
+                    <div class="msp-item"><label>المحافظة Governorate</label><select id="f01_governorate" class="msp-input" required></select></div>
+                    <div class="msp-item"><label>المنطقة Area</label><select id="f02_area" class="msp-input" required></select></div>
+                    <div class="msp-item"><label>اسم المنشأة Facility Name</label><input type="text" id="f03_facility_name" class="msp-input" required></div>
+                    <div class="msp-item"><label>نوع المنشأة Facility Type</label><select id="f04_facility_type" class="msp-input"></select></div>
+                    <div class="msp-item"><label>القطاع الصناعي Industrial Sector</label><select id="f05_industrial_sector" class="msp-input"></select></div>
+                    <div class="msp-item"><label>العنوان التفصيلي Detailed Address</label><input type="text" id="f06_address" class="msp-input"></div>
                 </div>
             </div>
 
             <div class="form-section">
                 <div class="section-header"><i class="fas fa-address-book"></i> بيانات التواصل</div>
                 <div class="msp-grid">
-                    <div class="msp-item"><label>الشخص المسؤول</label><input type="text" id="f07_contact_person" class="msp-input"></div>
-                    <div class="msp-item"><label>المسمى الوظيفي</label><input type="text" id="f08_job_title" class="msp-input"></div>
-                    <div class="msp-item"><label>رقم الهاتف</label><input type="tel" id="f09_phone" class="msp-input"></div>
-                    <div class="msp-item"><label>البريد الإلكتروني</label><input type="email" id="f10_email" class="msp-input"></div>
+                    <div class="msp-item"><label>الشخص المسؤول Contact Person</label><input type="text" id="f07_contact_person" class="msp-input"></div>
+                    <div class="msp-item"><label>المسمى الوظيفي Job Title</label><input type="text" id="f08_job_title" class="msp-input"></div>
+                    <div class="msp-item"><label>رقم الهاتف Phone Number</label><input type="tel" id="f09_phone" class="msp-input"></div>
+                    <div class="msp-item"><label>البريد الإلكتروني Email</label><input type="email" id="f10_email" class="msp-input"></div>
                 </div>
             </div>
 
             <div class="form-section">
                 <div class="section-header"><i class="fas fa-file-invoice"></i> تفاصيل الزيارة والاحتياجات</div>
                 <div class="msp-grid">
-                    <div class="msp-item"><label>استخدام الكرتون</label><select id="f11_uses_carton" class="msp-input"></select></div>
-                    <div class="msp-item"><label>الكمية الشهرية (تقريبي)</label><input type="number" id="f12_monthly_qty" class="msp-input"></div>
-                    <div class="msp-item"><label>درجة الاهتمام</label><select id="f13_interest_level" class="msp-input">
+                    <div class="msp-item"><label>استخدام الكرتون Carton Use</label><select id="f11_uses_carton" class="msp-input"></select></div>
+                    <div class="msp-item"><label>الكمية الشهرية (تقريبي) Monthly Qty</label><input type="number" id="f12_monthly_qty" class="msp-input"></div>
+                    <div class="msp-item"><label>درجة الاهتمام Interest Level</label><select id="f13_interest_level" class="msp-input">
                         <option value="">-- اختر --</option>
-                        <option value="High">مرتفع</option>
-                        <option value="Medium">متوسط</option>
-                        <option value="Low">منخفض</option>
+                        <option value="High">مرتفع High</option>
+                        <option value="Medium">متوسط Medium</option>
+                        <option value="Low">منخفض Low</option>
                     </select></div>
-                    <div class="msp-item"><label>فرصة البيع</label><select id="f14_sales_opportunity" class="msp-input"></select></div>
-                    <div class="msp-item"><label>تاريخ الزيارة</label><input type="date" id="f17_visit_date" class="msp-input" required></div>
-                    <div class="msp-item"><label>المندوب</label><select id="f16_sales_rep" class="msp-input"></select></div>
-                    <div class="msp-item full-width"><label>ملاحظات إضافية</label><textarea id="f15_notes" class="msp-input" rows="3"></textarea></div>
+                    <div class="msp-item"><label>فرصة البيع Sales Opportunity</label><select id="f14_sales_opportunity" class="msp-input"></select></div>
+                    <div class="msp-item"><label>تاريخ الزيارة Visit Date</label><input type="date" id="f17_visit_date" class="msp-input" required></div>
+                    <div class="msp-item"><label>المندوب Sales Rep</label><select id="f16_sales_rep" class="msp-input"></select></div>
+                    <div class="msp-item full-width"><label>ملاحظات إضافية Additional Notes</label><textarea id="f15_notes" class="msp-input" rows="3"></textarea></div>
                 </div>
             </div>
 
@@ -79,12 +96,31 @@
                 <tbody id="visitsTableBody"></tbody>
             </table>
         </div>
+
+        </div> <!-- End of .msp-container -->
     </div>
     
     <div id="mspModal" class="msp-modal"><div class="modal-content"><div id="modalIcon"></div><h3 id="modalTitle"></h3><p id="modalMsg"></p><button onclick="closeMSPModal()" class="modal-btn">إغلاق</button></div></div>
+
+    <!-- Delete Confirmation Modal (نافذة تأكيد الحذف) -->
+    <div id="deleteModal" class="msp-modal">
+        <div class="modal-content">
+            <div id="modalIcon" style="font-size: 3rem; margin-bottom: 15px;">⚠️</div>
+            <h3>تأكيد الحذف (Confirm Deletion)</h3>
+            <p style="color: var(--msp-text-muted); margin-bottom: 20px;">هل أنت متأكد من حذف هذا السجل؟ لا يمكن التراجع عن هذا الإجراء.<br>(Are you sure you want to delete this? This action cannot be undone.)</p>
+            <div class="modal-actions">
+                <button id="btnConfirmDelete" class="btn-danger"><i class="fas fa-trash"></i> نعم، احذف (Yes, Delete)</button>
+                <button onclick="closeDeleteModal()" class="btn-secondary">إلغاء (Cancel)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container (حاوية إشعارات التوست) -->
+    <div id="toastContainer" class="toast-container"></div>
 
     <script src="global-config.js"></script>
     <script src="visits.js"></script>
     <script>window.addEventListener('load', () => { initGlobalEngine(); });</script>
 </body>
 </html>
+<!-- === END OF FILE === -->

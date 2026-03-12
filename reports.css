@@ -1,0 +1,154 @@
+/* === START OF FILE === */
+/**
+ * Name: reports.css
+ * Version: v1.0.0
+ * Function: Styles for the Visits Reporting Dashboard.
+ * Components: Dashboard CSS Grid, KPI Cards, Chart Containers.
+ * I/O: N/A
+ */
+
+/* Color Variables (MSP Theme) */
+:root {
+    --msp-green: #10b981;
+    --msp-green-dark: #059669;
+    --msp-green-light: rgba(16, 185, 129, 0.15);
+    --msp-bg: #f8fafc;
+    --msp-text-main: #1e293b;
+    --msp-text-muted: #64748b;
+    --msp-border: #e2e8f0;
+    --msp-radius: 16px;
+    --msp-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+    background: var(--msp-bg);
+    color: var(--msp-text-main);
+    direction: rtl;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+/* Page Container (حاوية الصفحة) */
+.msp-main-content {
+    padding: 110px 40px 30px 40px;
+    margin: 0;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    display: flex; justify-content: space-between; align-items: center;
+    background: white;
+    padding: 20px 30px;
+    border-radius: var(--msp-radius);
+    border: 1px solid var(--msp-border);
+    box-shadow: var(--msp-shadow);
+    margin-bottom: 30px;
+}
+.dashboard-header h2 { margin: 0; color: var(--msp-text-main); display: flex; align-items: center; gap: 15px; }
+.dashboard-header h2 i { color: var(--msp-green); font-size: 1.5rem; }
+
+/* KPI Section (مؤشرات الأداء الرئيسية) */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+.kpi-card {
+    background: white;
+    padding: 25px;
+    border-radius: var(--msp-radius);
+    border: 1px solid var(--msp-border);
+    box-shadow: var(--msp-shadow);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+.kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.15);
+}
+.kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; width: 4px; height: 100%;
+    background: var(--msp-green);
+}
+.kpi-icon {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: var(--msp-green-light);
+    color: var(--msp-green);
+    display: flex; justify-content: center; align-items: center;
+    font-size: 1.8rem;
+}
+.kpi-details h3 { margin: 0; font-size: 0.95rem; color: var(--msp-text-muted); font-weight: 500; }
+.kpi-details p { margin: 5px 0 0 0; font-size: 1.8rem; font-weight: 800; color: var(--msp-text-main); }
+
+/* Charts Grid (شبكة الرسوم البيانية) */
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    margin-bottom: 30px;
+}
+.chart-card {
+    background: white;
+    padding: 25px;
+    border-radius: var(--msp-radius);
+    border: 1px solid var(--msp-border);
+    box-shadow: var(--msp-shadow);
+    display: flex;
+    flex-direction: column;
+}
+.chart-card h3 {
+    margin: 0 0 20px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--msp-border);
+    color: var(--msp-text-main);
+    display: flex; align-items: center; gap: 10px;
+    font-size: 1.1rem;
+}
+.chart-card h3 i { color: var(--msp-green); }
+.chart-container {
+    position: relative;
+    height: 300px; /* Fixed height for consistent chart rendering */
+    width: 100%;
+    flex-grow: 1;
+}
+
+/* Full Width Chart (مخطط بعرض كامل للصفحة) */
+.chart-card.full-width {
+    grid-column: 1 / -1;
+}
+.chart-card.full-width .chart-container {
+    height: 400px;
+}
+
+/* Error/Loading States */
+.loading-overlay {
+    position: fixed; inset: 0;
+    background: rgba(255,255,255,0.9);
+    z-index: 9999;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    color: var(--msp-green); font-size: 2rem;
+    transition: 0.3s opacity;
+}
+.loading-overlay.hidden { opacity: 0; pointer-events: none; }
+
+/* Responsive Dashboard Adjustments */
+@media (max-width: 1200px) {
+    .charts-grid { grid-template-columns: 1fr; }
+    .chart-card.full-width { grid-column: auto; }
+}
+@media (max-width: 768px) {
+    .msp-main-content { padding: 90px 15px 15px 15px; }
+    .dashboard-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+}
+
+/* === END OF FILE === */

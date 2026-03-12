@@ -1,64 +1,100 @@
 /* === START OF FILE === */
-/* File: visits.css | Version: v14.0.0 | MSP Green - Enhanced Layout */
+/*
+ * Name: visits.css
+ * Version: v15.0.0
+ * Function: Styles for the visits module, applying MSP Green theme and responsive layout.
+ * Components: Layout, Form Grid, Buttons, Data Table, Modals.
+ * I/O: Input: HTML elements / Output: Formatted visual interface.
+ */
 :root {
-    --msp-green: #059669;
-    --msp-green-dark: #064e3b;
+    --msp-green: #10b981; /* Modern Emerald */
+    --msp-green-dark: #047857;
     --msp-green-light: #ecfdf5;
-    --msp-bg: #f0fdf4;
-    --msp-border: #d1fae5;
+    --msp-bg: #f3f4f6; /* Soft gray for better contrast with white cards */
+    --msp-border: #e5e7eb;
+    --msp-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+    --msp-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+    --msp-radius: 16px;
+    --msp-text-main: #1f2937;
+    --msp-text-muted: #6b7280;
 }
 
-body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--msp-bg); direction: rtl; margin: 0; padding: 0; }
-.msp-main-content {
-    /* زد القيمة الأولى من 20px إلى 90px أو 100px */
-    padding: 90px 40px 20px 40px; 
-    margin-right: 70px;
-}
-/* Headers & Groups */
-.msp-header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 25px; border-radius: 15px; border-right: 6px solid var(--msp-green); box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
+body { font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif; background: var(--msp-bg); color: var(--msp-text-main); direction: rtl; margin: 0; padding: 0; line-height: 1.6; }
+.msp-main-content { padding: 110px 40px 30px 40px; margin: 0; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
-* === START OF CODE === */
-.form-section {
-    background: white;
-    border-radius: 15px;
-    margin-bottom: 30px;
-    border: 1.5px solid var(--msp-border);
+/* Page Container (حاوية الصفحة لتوحيد العرض) */
+.msp-container { width: 75%; margin: 0 auto; }
+
+/* Headers & Groups (العناوين والمجموعات) */
+.msp-header {
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    padding: 24px 45px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-right: 8px solid var(--msp-green);
+    box-shadow: 0 20px 40px -10px rgba(16, 185, 129, 0.15), 0 8px 16px rgba(0,0,0,0.03);
+    margin-bottom: 40px;
+    position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-
-    /* تعديل الحجم المطلوب */
-    width: 65% !important;   /* تصغير العرض بنسبة 35% */
-    margin-right: auto;      /* التوسيط في الصفحة */
-    margin-left: auto;       /* التوسيط في الصفحة */
-    
-    /* تصغير العناصر الداخلية لتتناسب مع الحجم الجديد */
-    transform: scale(0.95);  /* تصغير اختياري بسيط للعناصر الداخلية */
-    transform-origin: top;
 }
 
-/* تعديل عرض الشبكة لضمان عدم تداخل الحقول */
-.msp-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
-    gap: 15px !important;
-    padding: 20px !important;
+/* Elegant Shine Animation (لمعان أنيق) */
+.msp-header::before {
+    content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-25deg);
+    animation: mspShine 7s infinite;
 }
-/* === END OF CODE === */
+@keyframes mspShine { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
 
-.section-header { background: var(--msp-green); padding: 15px 20px; color: white; font-weight: bold; display: flex; align-items: center; gap: 10px; font-size: 1.1rem; }
+.header-title { z-index: 1; }
+.header-title h2 {
+    margin: 0; font-size: 1.8rem; font-weight: 800; color: var(--msp-text-main);
+    display: flex; align-items: center; gap: 16px; letter-spacing: -0.5px;
+}
+/* Gradient Icon */
+.header-title h2 i {
+    font-size: 2.2rem;
+    background: linear-gradient(135deg, var(--msp-green) 0%, #059669 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+    filter: drop-shadow(0 4px 6px rgba(16, 185, 129, 0.25));
+}
 
-/* Grid & Inputs */
-.msp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; padding: 25px; }
-.msp-item { display: flex; flex-direction: column; gap: 8px; }
-.msp-input { padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; transition: 0.3s; background: #f9fafb; font-size: 14px; }
-.msp-input:focus { border-color: var(--msp-green); outline: none; background: white; box-shadow: 0 0 0 4px rgba(5,150,105,0.1); }
+.header-logo {
+    height: 55px; width: auto; object-fit: contain; z-index: 1;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.06));
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.header-logo:hover { transform: scale(1.08) rotate(-2deg); }
+
+.form-section { background: white; border-radius: var(--msp-radius); margin-bottom: 30px; border: 1px solid var(--msp-border); overflow: hidden; box-shadow: var(--msp-shadow); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.form-section:hover { box-shadow: var(--msp-shadow-hover); transform: translateY(-2px); }
+.section-header { background: linear-gradient(135deg, var(--msp-green-dark) 0%, var(--msp-green) 100%); padding: 18px 25px; color: white; font-weight: 600; display: flex; align-items: center; gap: 12px; font-size: 1.15rem; letter-spacing: 0.5px; }
+
+/* Grid & Inputs (الشبكة والمدخلات) */
+.msp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; padding: 30px; }
+.msp-item { display: flex; flex-direction: column; gap: 10px; }
+.msp-item label { font-size: 0.9rem; font-weight: 600; color: var(--msp-text-muted); }
+.msp-input { padding: 14px 16px; border: 1.5px solid var(--msp-border); border-radius: 12px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); background: #f8fafc; font-size: 15px; color: var(--msp-text-main); }
+.msp-input:hover { background: white; border-color: #cbd5e1; }
+.msp-input:focus { border-color: var(--msp-green); outline: none; background: white; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); transform: translateY(-1px); }
 .full-width { grid-column: 1 / -1; }
 
-/* Centered Buttons & Feedback */
-.msp-btn-bar { display: flex; justify-content: center; gap: 20px; padding: 30px; }
-.btn-primary { background: var(--msp-green); color: white; border: none; padding: 15px 40px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 16px; box-shadow: 0 4px 12px rgba(5,150,105,0.3); transition: 0.3s; }
-.btn-secondary { background: #64748b; color: white; border: none; padding: 15px 40px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
-.btn-primary:hover, .btn-secondary:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
+/* Centered Buttons & Feedback (الأزرار المركزية وردود الفعل) */
+.msp-btn-bar { display: flex; justify-content: center; gap: 24px; padding: 35px; border-top: 1px solid var(--msp-border); background: #f8fafc; border-bottom-left-radius: var(--msp-radius); border-bottom-right-radius: var(--msp-radius); }
+.btn-primary { background: linear-gradient(135deg, var(--msp-green) 0%, var(--msp-green-dark) 100%); color: white; border: none; padding: 16px 45px; border-radius: 14px; cursor: pointer; font-weight: 600; font-size: 16px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 10px; }
+.btn-secondary { background: white; color: var(--msp-text-main); border: 1px solid #cbd5e1; padding: 16px 45px; border-radius: 14px; cursor: pointer; font-weight: 600; font-size: 16px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4); }
+.btn-secondary:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); border-color: #94a3b8; color: var(--msp-green-dark); }
+.btn-primary:active, .btn-secondary:active { transform: translateY(0); }
+
+.btn-danger { background: #fee2e2; color: #ef4444; border: 1px solid #fecaca; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-weight: bold; transition: all 0.2s ease; }
+.btn-danger:hover { transform: translateY(-2px) scale(1.05); background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); border-color: #ef4444; }
+.btn-edit { background: #e0f2fe; color: #3b82f6; border: 1px solid #bae6fd; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-weight: bold; transition: all 0.2s ease; }
+.btn-edit:hover { transform: translateY(-2px) scale(1.05); background: #3b82f6; color: white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); border-color: #3b82f6; }
 
 /* --- Table Toolbar Updates --- */
 .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
@@ -70,66 +106,84 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--msp-bg); d
 .search-input { width: 220px; padding: 10px 15px; border: 1.5px solid var(--msp-border); border-radius: 20px; font-size: 14px; margin-bottom: 0; outline: none; }
 .search-input:focus { border-color: var(--msp-green); box-shadow: 0 0 5px rgba(5,150,105,0.2); }
 
-/* Excel Table Styling */
-.msp-table-section { background: white; border-radius: 15px; padding: 25px; border: 1.5px solid var(--msp-border); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
-.table-container { overflow-x: auto; margin-top: 15px; border-radius: 10px; border: 1px solid #edf2f7; }
-table { width: 100%; border-collapse: collapse; }
+/* Excel Table Styling (تنسيق جدول إكسيل) */
+.msp-table-section { background: white; border-radius: var(--msp-radius); padding: 30px; border: 1px solid var(--msp-border); box-shadow: var(--msp-shadow); }
+.table-container { overflow-x: auto; margin-top: 15px; border-radius: 12px; border: 1px solid #e2e8f0; }
+table { width: 100%; border-collapse: separate; border-spacing: 0; }
 
 /* تنسيق Header مكدس للفلاتر */
-thead th { background: #f8fafc; color: var(--msp-green-dark); padding: 10px 15px; text-align: right; border-bottom: 2px solid var(--msp-green); position: sticky; top: 0; }
-.filter-header-cell { display: flex; flex-direction: column; gap: 6px; }
-.filter-header-cell span { font-size: 14px; font-weight: bold; }
+thead th { background: #f8fafc; color: var(--msp-text-muted); padding: 16px; text-align: right; border-bottom: 2px solid var(--msp-green); position: sticky; top: 0; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em; transition: background 0.2s ease; }
+thead th:hover { background: #f1f5f9; }
+.filter-header-cell { display: flex; flex-direction: column; gap: 8px; }
+.filter-header-cell span { font-size: 14px; font-weight: 700; color: var(--msp-text-main); text-transform: none; letter-spacing: normal; }
 
 /* البحث المخصص فوق ليبل كل عمود */
-.col-filter { width: 90%; padding: 5px 8px; font-size: 11px; border: 1px solid #cbd5e0; border-radius: 4px; outline: none; font-weight: normal; }
-.col-filter:focus { border-color: var(--msp-green); }
+.col-filter { width: 90%; padding: 8px 10px; font-size: 12px; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; font-weight: normal; background: white; transition: all 0.2s ease; }
+.col-filter:focus { border-color: var(--msp-green); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
 
-tbody td { padding: 14px 15px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-tbody tr:hover { background: #f0fdf4; }
+tbody td { padding: 18px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14.5px; color: var(--msp-text-main); vertical-align: middle; }
+tbody tr { transition: all 0.2s ease; }
+tbody tr:hover { background: var(--msp-green-light); transform: scale(1.002); box-shadow: 0 2px 10px rgba(0,0,0,0.02); z-index: 10; position: relative; }
 
-/* Modal Feedback */
+/* Modal Feedback (نوافذ التنبيهات) */
 .msp-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(4px); }
 .modal-content { background: white; padding: 40px; border-radius: 24px; text-align: center; width: 400px; border-top: 12px solid var(--msp-green); animation: mspPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 @keyframes mspPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.modal-btn { background: var(--msp-green); color: white; border: none; padding: 12px 30px; border-radius: 10px; cursor: pointer; margin-top: 20px; font-weight: bold; width: 100%; }
+.modal-btn { background: var(--msp-green); color: white; border: none; padding: 12px 30px; border-radius: 10px; cursor: pointer; margin-top: 20px; font-weight: bold; width: 100%; transition: 0.3s; }
+.modal-btn:hover { background: var(--msp-green-dark); }
+.modal-actions { display: flex; justify-content: center; gap: 15px; margin-top: 25px; }
+.modal-actions button { width: auto; margin-top: 0; }
+#deleteModal .modal-content { border-top-color: #ef4444; }
 
-/* === START OF FILE === */
-/* التعديلات المطلوبة على التنسيق */
+/* Toast Notifications (إشعارات التوست) */
+.toast-container { position: fixed; bottom: 20px; left: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 10000; }
+.msp-toast { min-width: 280px; max-width: 400px; background: white; border-radius: 12px; padding: 16px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; align-items: flex-start; gap: 14px; transform: translateX(-150%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease; opacity: 0; border-right: 5px solid var(--msp-border); }
+.msp-toast.show { transform: translateX(0); opacity: 1; }
+.msp-toast.success { border-right-color: var(--msp-green); }
+.msp-toast.error { border-right-color: #ef4444; }
+.msp-toast.info { border-right-color: #3b82f6; }
+.toast-icon { font-size: 1.6rem; }
+.msp-toast.success .toast-icon { color: var(--msp-green); }
+.msp-toast.error .toast-icon { color: #ef4444; }
+.msp-toast.info .toast-icon { color: #3b82f6; }
+.toast-content { display: flex; flex-direction: column; gap: 5px; text-align: right; }
+.toast-title { font-weight: 700; font-size: 0.95rem; color: var(--msp-text-main); }
+.toast-msg { font-size: 0.85rem; color: var(--msp-text-muted); line-height: 1.4; }
+
+/* Table Toolbar Adjustments (تعديلات شريط أدوات الجدول) */
 .table-toolbar {
     display: flex;
-    justify-content: space-between; /* العداد يمين والبحث يسار */
+    justify-content: space-between; /* العداد يمين والبحث يسار (Count right, Search left) */
     align-items: center;
-    margin-bottom: 15px;
-    padding: 0 5px;
+    margin-bottom: 20px;
+    padding: 0 8px;
 }
 
 .search-input {
-    width: 220px; /* تصغير البحث العالمي */
-    padding: 8px 15px;
-    border-radius: 20px;
-    border: 1.5px solid var(--msp-border);
+    width: 260px; /* تصغير البحث العالمي */
+    padding: 12px 20px;
+    border-radius: 24px;
+    border: 1px solid var(--msp-border);
+    transition: all 0.3s ease;
+    background: white;
+}
+.search-input:focus {
+    width: 300px;
 }
 
-.filter-header-cell {
-    display: flex;
-    flex-direction: column; /* الفلتر فوق الكلمة */
-    gap: 6px;
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .msp-container { width: 95%; }
+}
+@media (max-width: 768px) {
+    .msp-main-content { padding: 90px 15px 15px 15px; margin: 0; }
+    .msp-container { width: 100%; }
+    .table-toolbar { flex-direction: column; gap: 15px; align-items: stretch; }
+    .search-input { width: 100%; }
+    .search-input:focus { width: 100%; }
+    .msp-btn-bar { flex-direction: column; }
+    .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
 }
 
-.col-filter {
-    width: 90%;
-    padding: 4px;
-    font-size: 11px;
-    border: 1px solid #cbd5e0;
-    border-radius: 4px;
-    font-weight: normal;
-}
-
-
-/* === START OF FILE === */
-.full-width { grid-column: 1 / -1; }
-textarea.msp-input { resize: vertical; font-family: inherit; }
-/* ... (باقي التنسيقات التي أرسلتها سابقاً للفلاتر والعداد) ... */
 
 /* === END OF FILE === */
-
